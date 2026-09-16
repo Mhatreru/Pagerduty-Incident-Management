@@ -1,0 +1,41 @@
+﻿# Environments & Dependencies
+backend/venv/
+backend/.venv/
+frontend/node_modules/
+node_modules/
+
+# Environment Variables & Secrets
+.env
+*.env
+backend/.env
+!backend/.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.class
+*.so
+.Python
+backend/.pytest_cache/
+.pytest_cache/
+
+# Frontend Build
+frontend/dist/
+frontend/build/
+dist/
+build/
+.cache/
+*.tsbuildinfo
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
