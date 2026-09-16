@@ -1,0 +1,416 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NEXUS - 7-Minute Executive Demo Script</title>
+<style>
+  @page {
+    size: A4 portrait;
+    margin: 14mm 14mm 14mm 14mm;
+  }
+  * {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: #0f172a;
+    background: #ffffff;
+    line-height: 1.45;
+    font-size: 11pt;
+    margin: 0;
+    padding: 0;
+  }
+  .header-card {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 18px;
+    border: 1px solid #334155;
+  }
+  .header-badge {
+    display: inline-block;
+    background: #4f46e5;
+    color: #ffffff;
+    font-size: 8.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 3px 9px;
+    border-radius: 9999px;
+    margin-bottom: 8px;
+  }
+  .header-title {
+    font-size: 20pt;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0 0 6px 0;
+    color: #ffffff;
+  }
+  .header-sub {
+    font-size: 10pt;
+    color: #94a3b8;
+    margin: 0;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #334155;
+  }
+  .meta-item {
+    font-size: 8.5pt;
+  }
+  .meta-label {
+    color: #94a3b8;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 7.5pt;
+    letter-spacing: 0.04em;
+  }
+  .meta-val {
+    color: #38bdf8;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    font-size: 9pt;
+  }
+  .summary-table th {
+    background: #0f172a;
+    color: #ffffff;
+    text-align: left;
+    padding: 8px 10px;
+    font-weight: 700;
+    font-size: 8pt;
+    letter-spacing: 0.03em;
+  }
+  .summary-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+  }
+  .summary-table tr:nth-child(even) td {
+    background: #f8fafc;
+  }
+  .time-badge {
+    display: inline-block;
+    background: #e0e7ff;
+    color: #3730a3;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 8pt;
+  }
+  .stage-box {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .stage-header {
+    background: #f1f5f9;
+    padding: 8px 14px;
+    border-bottom: 1px solid #cbd5e1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .stage-title {
+    font-size: 11pt;
+    font-weight: 800;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .stage-content {
+    padding: 12px 14px;
+  }
+  .action-banner {
+    background: #f8fafc;
+    border-left: 3px solid #0284c7;
+    padding: 6px 10px;
+    font-size: 9pt;
+    color: #0369a1;
+    margin-bottom: 10px;
+    border-radius: 0 4px 4px 0;
+  }
+  .action-banner strong {
+    color: #0c4a6e;
+  }
+  .speech-bubble {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 9.5pt;
+    color: #1e293b;
+    line-height: 1.5;
+  }
+  .speech-bubble strong {
+    color: #4338ca;
+  }
+  .tip-box {
+    background: #fffbeb;
+    border: 1px solid #fef3c7;
+    border-left: 4px solid #f59e0b;
+    padding: 12px 14px;
+    border-radius: 6px;
+    margin-top: 14px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .tip-box h4 {
+    margin: 0 0 6px 0;
+    font-size: 10pt;
+    color: #92400e;
+    font-weight: 800;
+  }
+  .tip-box ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 9pt;
+    color: #78350f;
+  }
+  .tip-box li {
+    margin-bottom: 4px;
+  }
+  .page-break {
+    page-break-before: always;
+    break-before: page;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Header Banner -->
+  <div class="header-card">
+    <div class="header-badge">Executive SRE Presentation</div>
+    <h1 class="header-title">NEXUS Autonomous Remediation Platform</h1>
+    <p class="header-sub">6-8 Minute High-Impact Demo Script • Closed-Loop SRE Orchestration</p>
+
+    <div class="meta-grid">
+      <div class="meta-item">
+        <div class="meta-label">Target Application</div>
+        <div class="meta-val">Farmers Intelligent Quoting</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">APM Integration</div>
+        <div class="meta-val">Dynatrace Synthetic Probes</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Primary On-Call</div>
+        <div class="meta-val">Rugved Mhatre (Tier 1)</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Target MTTR</div>
+        <div class="meta-val">&lt; 4.0 Minutes (92% Faster)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline Table -->
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th style="width: 15%;">Timestamp</th>
+        <th style="width: 25%;">Screen / Platform Area</th>
+        <th style="width: 60%;">Primary Executive Takeaway</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="time-badge">0:00 – 1:00</span></td>
+        <td><strong>Stage 0: Overview Cockpit</strong> (<code>/</code>)</td>
+        <td>The business problem of alert fatigue & the 4-stage automated lifecycle.</td>
+      </tr>
+      <tr>
+        <td><span class="time-badge">1:00 – 2:15</span></td>
+        <td><strong>Stage 1: Dynatrace APM</strong> (<code>/monitoring</code>)</td>
+        <td>Real HTTP Synthetic Monitor on Farmers Quoting Hub (357ms, 100% SLA).</td>
+      </tr>
+      <tr>
+        <td><span class="time-badge">2:15 – 3:30</span></td>
+        <td><strong>Simulation Fault Injection</strong></td>
+        <td>Real-time event storm correlation: 12 noisy alerts compressed to 1 incident.</td>
+      </tr>
+      <tr>
+        <td><span class="time-badge">3:30 – 4:45</span></td>
+        <td><strong>Stage 2: AI Incident Analysis</strong> (<code>/incidents</code>)</td>
+        <td>Gemini AI diagnosis, blast-radius calculation, and dry-run safety validation.</td>
+      </tr>
+      <tr>
+        <td><span class="time-badge">4:45 – 5:45</span></td>
+        <td><strong>Stage 3: PagerDuty On-Call</strong> (<code>/incident-response</code>)</td>
+        <td>Live push/SMS to Rugved Mhatre, escalation ladder & instant acknowledgment.</td>
+      </tr>
+      <tr>
+        <td><span class="time-badge">5:45 – 6:45</span></td>
+        <td><strong>Stage 4: Automated Runbook Recovery</strong></td>
+        <td>1-click execution (<code>rb-db-pool-recovery</code>), sync dual-channel auto-resolve.</td>
+      </tr>
+      <tr>
+        <td><span class="time-badge">6:45 – 7:15</span></td>
+        <td><strong>Executive Wrap-Up & ROI</strong></td>
+        <td>MTTR compression from 45 min down to &lt;4 min; zero manual ticketing.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Act I -->
+  <div class="stage-box">
+    <div class="stage-header">
+      <div class="stage-title">Act I: The Hook & Overview Cockpit</div>
+      <span class="time-badge">0:00 – 1:00 (60s)</span>
+    </div>
+    <div class="stage-content">
+      <div class="action-banner">
+        <strong>On-Screen Action:</strong> Open <code>http://127.0.0.1:5173/</code>. Point cursor to the <strong>4-Stage Lifecycle Flow Tracker</strong> in the center.
+      </div>
+      <div class="speech-bubble">
+        "Good morning team. Today, enterprise SRE teams face three compounding crises during an outage: <strong>alert fatigue</strong> from hundreds of duplicate notifications, prolonged <strong>MTTR</strong> trying to manually triage logs, and <strong>human friction</strong> in executing operational runbooks.<br><br>
+        This is <strong>NEXUS</strong>—an Autonomous Incident Remediation Cockpit bridging <strong>Dynatrace APM</strong>, <strong>Google Gemini AI</strong>, and <strong>PagerDuty</strong> into a single self-healing loop.<br><br>
+        Notice our 4-stage pipeline: <strong>Stage 1: Deep Observability</strong>, <strong>Stage 2: AI Correlation & War Room</strong>, <strong>Stage 3: Incident Response & On-Call</strong>, and <strong>Stage 4: Automated Runbook Recovery</strong>. Let's look at the production environment in its healthy state."
+      </div>
+    </div>
+  </div>
+
+  <!-- Act II -->
+  <div class="stage-box">
+    <div class="stage-header">
+      <div class="stage-title">Act II: Dynatrace APM & Synthetic Probes</div>
+      <span class="time-badge">1:00 – 2:15 (75s)</span>
+    </div>
+    <div class="stage-content">
+      <div class="action-banner">
+        <strong>On-Screen Action:</strong> Click <strong>"Stage 1: Dynatrace APM"</strong> in sidebar. Hover over <strong>NEXUS POC - Claims Portal</strong> and the bracketed link: <code>([Farmers Intelligent Quoting Hub])</code>. Highlight the 4 KPI tiles (357ms, 100% Availability).
+      </div>
+      <div class="speech-bubble">
+        "Here in Stage 1, NEXUS is directly integrated with enterprise APM via <strong>Dynatrace</strong>.<br><br>
+        Rather than mocking hypothetical metrics, this card is actively connected to our live Dynatrace HTTP Synthetic Monitor, probing our real application: <strong>Farmers Intelligent Quoting Hub</strong>.<br><br>
+        We see our baseline: <strong>100% availability</strong>, probe executing every 1 minute from <strong>N. Virginia</strong>, with a clean response time of <strong>357 milliseconds</strong>. Now let's inject a realistic production failure."
+      </div>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- Act III -->
+  <div class="stage-box">
+    <div class="stage-header">
+      <div class="stage-title">Act III: Outage Injection & Noise Correlation</div>
+      <span class="time-badge">2:15 – 3:30 (75s)</span>
+    </div>
+    <div class="stage-content">
+      <div class="action-banner">
+        <strong>On-Screen Action:</strong> In top simulation bar, click <strong>"DB Connection Pool Exhaustion"</strong>. Show latency jumping past 4,000ms and the live event storm of 12+ incoming alerts.
+      </div>
+      <div class="speech-bubble">
+        "I've just simulated a critical failure: <strong>Database Connection Pool Exhaustion</strong> on the claims database.<br><br>
+        Immediately, our synthetic monitor detects degradation, latency spikes past <strong>4,000 ms</strong>, and cascading failures ripple into the web portal and payment services.<br><br>
+        In a typical operations center, this triggers 15 different alerts and wakes up multiple teams. Watch how NEXUS responds: our correlation engine deduplicates the storm with <strong>92% noise reduction</strong>, isolating all alerts to a single root incident."
+      </div>
+    </div>
+  </div>
+
+  <!-- Act IV -->
+  <div class="stage-box">
+    <div class="stage-header">
+      <div class="stage-title">Act IV: Gemini AI War Room & Dry-Run Simulation</div>
+      <span class="time-badge">3:30 – 4:45 (75s)</span>
+    </div>
+    <div class="stage-content">
+      <div class="action-banner">
+        <strong>On-Screen Action:</strong> Click <strong>"Stage 2: Incident Management"</strong>. Click the active incident to open the <strong>AI War Room Modal</strong>. Click <strong>"Simulate Dry Run"</strong> and show the live safety checks passing.
+      </div>
+      <div class="speech-bubble">
+        "Inside the Incident War Room, our embedded <strong>Gemini AI Copilot</strong> has analyzed the telemetry in real time.<br><br>
+        Notice three capabilities:<br>
+        1. It provides a clean, executive summary of the failure mechanism.<br>
+        2. It calculates business blast-radius: estimated financial impact and SLA risk.<br>
+        3. It automatically matched the approved remediation runbook: <strong>rb-db-pool-recovery</strong>.<br><br>
+        Before modifying production, the engineer clicks <strong>Simulate Dry Run</strong>. As you can see, NEXUS validates database locks, connection overhead, and system blast radius safely in advance."
+      </div>
+    </div>
+  </div>
+
+  <!-- Act V -->
+  <div class="stage-box">
+    <div class="stage-header">
+      <div class="stage-title">Act V: PagerDuty Live Mobilization & Acknowledgment</div>
+      <span class="time-badge">4:45 – 5:45 (60s)</span>
+    </div>
+    <div class="stage-content">
+      <div class="action-banner">
+        <strong>On-Screen Action:</strong> Click <strong>"Stage 3: Incident Response"</strong>. Point out Tier 1 Primary: <strong>Rugved Mhatre</strong>, Escalation Ladder (Samruddhi, Aarzoo), and the active P1 incident. Click <strong>"Acknowledge"</strong>.
+      </div>
+      <div class="speech-bubble">
+        "Now let's examine on-call response.<br><br>
+        NEXUS mobilized <strong>PagerDuty Events API v2</strong> using dynamic incident deduplication. Tier 1 primary SRE, <strong>Rugved Mhatre</strong>, received a mobile push and SMS notification, while <strong>Samruddhi Kakade</strong> and <strong>Aarzoo Sharma</strong> stand ready on the escalation ladder.<br><br>
+        Simultaneously, a <strong>ServiceNow CMDB ticket</strong> was automatically opened. When I click <strong>Acknowledge</strong>, bi-directional sync immediately acknowledges the incident in both NEXUS and PagerDuty."
+      </div>
+    </div>
+  </div>
+
+  <!-- Act VI -->
+  <div class="stage-box">
+    <div class="stage-header">
+      <div class="stage-title">Act VI: 1-Click Remediation & Dual-Channel Auto-Resolve</div>
+      <span class="time-badge">5:45 – 6:45 (60s)</span>
+    </div>
+    <div class="stage-content">
+      <div class="action-banner">
+        <strong>On-Screen Action:</strong> In the Incident Modal, click the green <strong>"Approve & Execute Remediation"</strong> button. Show automated runbook steps executing, status turning to <strong>RESOLVED</strong>, and service turning green.
+      </div>
+      <div class="speech-bubble">
+        "Now for the resolution.<br><br>
+        With human-in-the-loop governance, the engineer clicks <strong>Approve & Execute Remediation</strong>.<br><br>
+        NEXUS runs the pre-approved runbook: terminates zombie connections, expands pool limits, and verifies healthy ping responses.<br><br>
+        Crucially, NEXUS performs a <strong>dual-channel sync</strong>: it automatically updates PagerDuty via REST API and Events API to <strong>resolved</strong>. Pagers are silenced, the ServiceNow ticket closes, and Dynatrace returns to 100% health."
+      </div>
+    </div>
+  </div>
+
+  <!-- Act VII -->
+  <div class="stage-box">
+    <div class="stage-header">
+      <div class="stage-title">Act VII: Closing Summary & Measurable ROI</div>
+      <span class="time-badge">6:45 – 7:15 (30s)</span>
+    </div>
+    <div class="stage-content">
+      <div class="action-banner">
+        <strong>On-Screen Action:</strong> Return to <strong>Overview Cockpit</strong> (<code>/</code>). Highlight: <strong>100% Platform Health</strong>, <strong>Zero Active Outages</strong>, <strong>3.8m MTTR</strong>.
+      </div>
+      <div class="speech-bubble">
+        "To summarize the business value delivered by NEXUS:<br>
+        • <strong>92% Reduction in Alert Fatigue</strong> via intelligent event deduplication.<br>
+        • <strong>Zero Manual Ticket Filing</strong> with autonomous PagerDuty and ServiceNow synchronization.<br>
+        • <strong>MTTR compressed from 45+ minutes down to under 4 minutes</strong> through automated, AI-assisted self-healing.<br><br>
+        Thank you, and I am happy to open the floor for any questions."
+      </div>
+    </div>
+  </div>
+
+  <!-- Speaker Tips -->
+  <div class="tip-box">
+    <h4>💡 Pro Speaker Guidelines for Flawless Delivery:</h4>
+    <ul>
+      <li><strong>Pacing:</strong> Pause for 2 seconds after each action to let the audience absorb visual changes (color switches, badge updates).</li>
+      <li><strong>Highlight Live Integrations:</strong> Mention that Dynatrace is pinging the live <em>Farmers Intelligent Quoting Hub</em> and PagerDuty calls are real API requests.</li>
+      <li><strong>Focus on Business Value:</strong> Always emphasize that automation eliminates costly downtime (,500/min in insurance claims) while keeping human engineers in control.</li>
+    </ul>
+  </div>
+
+</body>
+</html>
