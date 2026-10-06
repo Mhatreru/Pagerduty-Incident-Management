@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { SimulationBar } from "../components/SimulationBar";
-import { PathwayStepper } from "../components/PathwayStepper";
 import { Analytics, Incident, Service } from "../types";
 import LanguageIcon from "@mui/icons-material/Language";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
@@ -176,59 +175,6 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
             </select>
           </div>
         </div>
-      </div>
-
-      {/* Guided Pathway Stepper */}
-      <PathwayStepper activeIncidentCount={activeIncidents.length} />
-
-      {/* Pathway Quick Start Callout */}
-      <div style={{
-        background: "linear-gradient(90deg, #eff6ff 0%, #ffffff 100%)",
-        border: "1px solid #bfdbfe",
-        borderRadius: "8px",
-        padding: "12px 18px",
-        marginBottom: "20px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: "16px"
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <span style={{
-            fontSize: "11px",
-            fontWeight: 800,
-            color: "#1d4ed8",
-            background: "#dbeafe",
-            padding: "3px 8px",
-            borderRadius: "6px"
-          }}>
-            GUIDED INCIDENT LIFECYCLE
-          </span>
-          <span style={{ fontSize: "13px", color: "#334155" }}>
-            Follow the 4-step sequence: <strong>1. Detect (Dynatrace)</strong> ➔ <strong>2. Triage (PagerDuty)</strong> ➔ <strong>3. War Room (AIOps)</strong> ➔ <strong>4. Postmortem & ROI</strong>.
-          </span>
-        </div>
-        <button
-          onClick={() => navigate(activeIncidents.length > 0 ? "/incidents" : "/monitoring")}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            background: "#0f172a",
-            color: "#ffffff",
-            border: "none",
-            borderRadius: "6px",
-            padding: "8px 16px",
-            fontSize: "12.5px",
-            fontWeight: 700,
-            cursor: "pointer",
-            whiteSpace: "nowrap",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
-          }}
-        >
-          <span>{activeIncidents.length > 0 ? "Go to Active War Room" : "Start at Step 1: Detect"}</span>
-          <ArrowForwardIcon style={{ fontSize: "16px" }} />
-        </button>
       </div>
 
       {/* ----------------- SIMULATION DRILL BAR ----------------- */}

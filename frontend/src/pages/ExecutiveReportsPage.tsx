@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { DigestRun } from '../types';
 import { PageHeader } from '../components/PageHeader';
-import { PathwayStepper } from '../components/PathwayStepper';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import AssessmentIcon from '@mui/icons-material/Assessment';
@@ -10,8 +8,6 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import LayersIcon from '@mui/icons-material/Layers';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import PsychologyIcon from '@mui/icons-material/Psychology';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ReplayIcon from '@mui/icons-material/Replay';
 
 interface ExecutiveReportsPageProps {
   currentRole: string;
@@ -22,7 +18,6 @@ export const ExecutiveReportsPage: React.FC<ExecutiveReportsPageProps> = ({
   currentRole,
   onRoleChange
 }) => {
-  const navigate = useNavigate();
   const [digests, setDigests] = useState<DigestRun[]>([]);
   const [selectedDigest, setSelectedDigest] = useState<DigestRun | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -86,72 +81,12 @@ export const ExecutiveReportsPage: React.FC<ExecutiveReportsPageProps> = ({
       boxSizing: 'border-box'
     }}>
       <PageHeader
-        title="Step 4: Postmortem, Executive ROI & Governance"
-        subtitle="Zero-click operations reporting with AI executive narrative synthesis, MTTR compression benchmarks, and financial downtime savings."
+        title="Executive SRE Digests and Board Reports"
+        subtitle="Zero-click weekly operations reporting with AI executive narrative synthesis, MTTR compression benchmarks, and financial downtime savings."
         currentRole={currentRole}
         onRoleChange={onRoleChange}
-        badge="STEP 4 COMPLETE"
+        badge="BOARD READY"
       />
-
-      {/* Guided Pathway Stepper */}
-      <PathwayStepper />
-
-      {/* Guided Navigation Bar */}
-      <div style={{
-        background: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '8px',
-        padding: '12px 18px',
-        marginBottom: '20px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '16px'
-      }}>
-        <button
-          onClick={() => navigate('/incidents')}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: '#f1f5f9',
-            color: '#334155',
-            border: '1px solid #cbd5e1',
-            borderRadius: '6px',
-            padding: '8px 14px',
-            fontSize: '12.5px',
-            fontWeight: 600,
-            cursor: 'pointer',
-          }}
-        >
-          <ArrowBackIcon style={{ fontSize: '16px' }} />
-          <span>Back: Step 3 War Room</span>
-        </button>
-
-        <div style={{ fontSize: '13px', color: '#15803d', fontWeight: 600, textAlign: 'center' }}>
-          ✔ Lifecycle Complete: Incident detected, triaged, autonomously mitigated, and synthesized for leadership.
-        </div>
-
-        <button
-          onClick={() => navigate('/monitoring')}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: '#f8fafc',
-            color: '#334155',
-            border: '1px solid #cbd5e1',
-            borderRadius: '6px',
-            padding: '8px 14px',
-            fontSize: '12.5px',
-            fontWeight: 600,
-            cursor: 'pointer',
-          }}
-        >
-          <ReplayIcon style={{ fontSize: '16px' }} />
-          <span>Restart Cycle (Step 1)</span>
-        </button>
-      </div>
 
       {/* 4 Executive KPI Cards */}
       <div style={{
