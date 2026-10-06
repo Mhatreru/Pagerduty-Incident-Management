@@ -5,6 +5,8 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import CableIcon from '@mui/icons-material/Cable';
 import SearchIcon from '@mui/icons-material/Search';
+import HubIcon from '@mui/icons-material/Hub';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 
 interface SidebarProps {
   openIncidentCount?: number;
@@ -14,7 +16,9 @@ const navItems = [
   { path: '/', label: 'Overview', icon: DashboardIcon, exact: true },
   { path: '/monitoring', label: 'Dynatrace APM', icon: SearchIcon },
   { path: '/incidents', label: 'Incident Management', icon: NotificationsActiveIcon },
+  { path: '/problems', label: 'Problem Management', icon: HubIcon },
   { path: '/incident-response', label: 'Incident Response', icon: CableIcon },
+  { path: '/reports', label: 'Executive Reports', icon: AssessmentIcon },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ openIncidentCount }) => {

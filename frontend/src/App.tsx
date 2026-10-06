@@ -5,6 +5,8 @@ import { OverviewPage } from "./pages/OverviewPage";
 import { IncidentsPage } from "./pages/IncidentsPage";
 import { DynatraceMonitoringPage } from "./pages/DynatraceMonitoringPage";
 import { PagerDutyResponsePage } from "./pages/PagerDutyResponsePage";
+import { ProblemManagementPage } from "./pages/ProblemManagementPage";
+import { ExecutiveReportsPage } from "./pages/ExecutiveReportsPage";
 import { Service, Incident, Analytics, RawEvent } from "./types";
 
 function App() {
@@ -260,6 +262,18 @@ function App() {
                 onRoleChange={handleRoleChange}
                 onAcknowledgeIncident={handleAckIncident}
                 onResolveIncident={handleResolveIncident}
+              />
+            } />
+            <Route path="/problems" element={
+              <ProblemManagementPage
+                currentRole={currentRole}
+                onRoleChange={handleRoleChange}
+              />
+            } />
+            <Route path="/reports" element={
+              <ExecutiveReportsPage
+                currentRole={currentRole}
+                onRoleChange={handleRoleChange}
               />
             } />
 

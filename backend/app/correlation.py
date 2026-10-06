@@ -277,6 +277,25 @@ def process_incoming_alert(
             b_svc.status = "DEGRADED"
     db.commit()
 
+    # 7b. NEXUS v2: Auto-attach to Problem Management and Deployment correlations
+    try:
+        from . import v2_services
+        v2_services.attach_incident_to_problem(
+            db=db,
+            incident_id=new_incident.id,
+            summary=summary,
+            service_id=service_id,
+            cost_exposure=float(impact_data.get("estimated_revenue_exposure_hr", 24000))
+        )
+        v2_services.correlate_incident_with_deployments(
+            db=db,
+            incident_id=new_incident.id,
+            service_id=service_id,
+            incident_created_at=new_incident.created_at
+        )
+    except Exception as ex:
+        print(f"NEXUS v2 correlation hook error: {ex}")
+
     # 8. Dispatch Multi-Channel Notifications (Slack/Teams)
     notification_connector.send_incident_alert({
         "id": new_incident.id,

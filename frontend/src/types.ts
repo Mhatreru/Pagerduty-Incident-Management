@@ -122,3 +122,98 @@ export interface PlatformHealth {
   ingestion_mode: string;
 }
 
+// ----------------- NEXUS v2 TIER-1 ENTERPRISE TYPES -----------------
+
+export interface Problem {
+  id: string;
+  root_cause_fingerprint: string;
+  title: string;
+  primary_service: string;
+  first_seen_at: string;
+  last_seen_at: string;
+  occurrence_count: number;
+  status: 'ACTIVE' | 'MITIGATED' | 'PERMANENTLY_FIXED';
+  estimated_cost_per_occurrence: number;
+  recommended_permanent_fix?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LinkedIncidentSummary {
+  id: number;
+  summary: string;
+  status: string;
+  priority: string;
+  created_at: string;
+  pagerduty_id?: string;
+}
+
+export interface ProblemDetail extends Problem {
+  linked_incidents: LinkedIncidentSummary[];
+  action_items_total: number;
+  action_items_done: number;
+  action_items_completion_pct: number;
+}
+
+export interface PostmortemActionItem {
+  id: string;
+  incident_id: number;
+  problem_id?: string;
+  description: string;
+  owner?: string;
+  due_date?: string;
+  status: 'OPEN' | 'IN_PROGRESS' | 'DONE' | 'WONT_FIX';
+  source: 'GEMINI_GENERATED' | 'MANUAL';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Deployment {
+  id: string;
+  service: string;
+  version?: string;
+  deployed_at: string;
+  deployed_by?: string;
+  source?: string;
+  rollback_available: boolean;
+  rollback_command?: string;
+}
+
+export interface DeploymentCorrelation {
+  deployment: Deployment;
+  time_delta_seconds: number;
+  correlation_confidence: number;
+}
+
+export interface DigestRun {
+  id: string;
+  period_start: string;
+  period_end: string;
+  total_incidents: number;
+  p1_count: number;
+  avg_mttr_minutes: number;
+  top_problem_id?: string;
+  top_problem_title?: string;
+  estimated_cost_saved: number;
+  generated_summary: string;
+  sent_at: string;
+  recipients: string[];
+}
+
+export interface RoiMetrics {
+  total_incidents_remediated: number;
+  manual_mttr_minutes: number;
+  nexus_mttr_minutes: number;
+  mttr_reduction_pct: number;
+  hourly_outage_cost_usd: number;
+  total_cost_saved_usd: number;
+  total_cost_saved_formatted: string;
+  top_recurring_problem?: {
+    title: string;
+    occurrences: number;
+    service: string;
+    exposure: number;
+  };
+}
+
+

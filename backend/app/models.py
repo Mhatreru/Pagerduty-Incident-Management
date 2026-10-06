@@ -1,5 +1,6 @@
 import datetime
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text
+import uuid
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text, Float, Date
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -145,3 +146,127 @@ class AuditLog(Base):
     actor = Column(String, default="System")  # e.g., System, Gemini, Operator (L1/L2/Admin)
     details = Column(Text, nullable=True)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
+
+# ==============================================================================
+# NEXUS v2 — TIER-1 ENTERPRISE MODELS
+# ==============================================================================
+
+class Problem(Base):
+    """
+    Groups recurring incidents sharing the same root-cause fingerprint.
+    """
+    __tablename__ = "problems"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    root_cause_fingerprint = Column(String, index=True, nullable=False)
+    title = Column(String, nullable=False)
+    primary_service = Column(String, ForeignKey("services.id"), nullable=False)
+    first_seen_at = Column(DateTime, default=datetime.datetime.utcnow)
+    last_seen_at = Column(DateTime, default=datetime.datetime.utcnow)
+    occurrence_count = Column(Integer, default=1)
+    status = Column(String, default="ACTIVE")  # ACTIVE, MITIGATED, PERMANENTLY_FIXED
+    estimated_cost_per_occurrence = Column(Float, default=24000.0)  # Currency exposure (e.g., INR / USD)
+    recommended_permanent_fix = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    incidents = relationship("ProblemIncident", back_populates="problem", cascade="all, delete-orphan")
+    action_items = relationship("PostmortemActionItem", back_populates="problem")
+
+class ProblemIncident(Base):
+    """
+    Join table linking recurring incidents to a Problem record.
+    """
+    __tablename__ = "problem_incidents"
+
+    problem_id = Column(String, ForeignKey("problems.id"), primary_key=True)
+    incident_id = Column(Integer, ForeignKey("incidents.id"), primary_key=True)
+    attached_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    problem = relationship("Problem", back_populates="incidents")
+    incident = relationship("Incident")
+
+class PostmortemActionItem(Base):
+    """
+    Actionable task generated from incident postmortems or created manually.
+    """
+    __tablename__ = "postmortem_action_items"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    incident_id = Column(Integer, ForeignKey("incidents.id"), nullable=False)
+    problem_id = Column(String, ForeignKey("problems.id"), nullable=True)
+    description = Column(Text, nullable=False)
+    owner = Column(String, default="sre-core@nexus.internal")
+    due_date = Column(Date, nullable=True)
+    status = Column(String, default="OPEN")  # OPEN, IN_PROGRESS, DONE, WONT_FIX
+    source = Column(String, default="GEMINI_GENERATED")  # GEMINI_GENERATED, MANUAL
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    incident = relationship("Incident")
+    problem = relationship("Problem", back_populates="action_items")
+
+class Deployment(Base):
+    """
+    CI/CD deployment record used for incident correlation.
+    """
+    __tablename__ = "deployments"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    service = Column(String, ForeignKey("services.id"), nullable=False)
+    version = Column(String, nullable=True)  # Git commit SHA or build ID, e.g. #482
+    deployed_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    deployed_by = Column(String, default="github-actions[bot]")
+    source = Column(String, default="github_actions")  # github_actions, jenkins, manual
+    rollback_available = Column(Boolean, default=True)
+    rollback_command = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+class IncidentDeploymentCorrelation(Base):
+    """
+    Correlates an incident to deployments occurring in proximity.
+    """
+    __tablename__ = "incident_deployment_correlations"
+
+    incident_id = Column(Integer, ForeignKey("incidents.id"), primary_key=True)
+    deployment_id = Column(String, ForeignKey("deployments.id"), primary_key=True)
+    time_delta_seconds = Column(Integer, default=240)  # seconds between deploy and incident start
+    correlation_confidence = Column(Float, default=0.91)  # 0.0 - 1.0 (e.g. 91%)
+
+    incident = relationship("Incident")
+    deployment = relationship("Deployment")
+
+class DigestRun(Base):
+    """
+    Executive SRE Digest snapshot (weekly/monthly).
+    """
+    __tablename__ = "digest_runs"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    period_start = Column(Date, nullable=False)
+    period_end = Column(Date, nullable=False)
+    total_incidents = Column(Integer, default=0)
+    p1_count = Column(Integer, default=0)
+    avg_mttr_minutes = Column(Float, default=3.8)
+    top_problem_id = Column(String, ForeignKey("problems.id"), nullable=True)
+    estimated_cost_saved = Column(Float, default=145000.0)  # Calculated downtime cost savings
+    generated_summary = Column(Text, nullable=False)
+    sent_at = Column(DateTime, default=datetime.datetime.utcnow)
+    recipients_json = Column(Text, default='["leadership@company.com", "sre-leads@company.com"]')
+    pdf_filename = Column(String, nullable=True)
+
+    top_problem = relationship("Problem")
+
+class QueryCache(Base):
+    """
+    Cache for Ask NEXUS natural-language queries.
+    """
+    __tablename__ = "query_cache"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    query_text = Column(Text, nullable=False, index=True)
+    response_text = Column(Text, nullable=False)
+    supporting_data_json = Column(Text, nullable=True)
+    generated_at = Column(DateTime, default=datetime.datetime.utcnow)
+    expires_at = Column(DateTime, nullable=True)
+

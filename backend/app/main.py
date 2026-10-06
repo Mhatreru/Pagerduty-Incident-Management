@@ -253,12 +253,14 @@ async def lifespan(app_instance):
     from .remediation_engine import seed_default_runbooks
     from .database import SessionLocal
 
-    # Seed default runbooks
+    # Seed default runbooks & v2 enterprise data
     db_init = SessionLocal()
     try:
         seed_default_runbooks(db_init)
+        from .seed_v2 import seed_v2_enterprise_data
+        seed_v2_enterprise_data(db_init)
     except Exception as e:
-        logger.warning(f"Runbook seed error: {e}")
+        logger.warning(f"Runbook / v2 seed error: {e}")
     finally:
         db_init.close()
 
@@ -300,6 +302,10 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
+
+# ----------------- NEXUS v2 ENTERPRISE ROUTER -----------------
+from .v2_router import router as v2_router
+app.include_router(v2_router)
 
 # ----------------- INGESTION ENDPOINT -----------------
 

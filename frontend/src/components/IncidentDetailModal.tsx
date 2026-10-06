@@ -12,6 +12,10 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import TerminalIcon from "@mui/icons-material/Terminal";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import SecurityIcon from "@mui/icons-material/Security";
+import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import { PostmortemActionItem, DeploymentCorrelation } from "../types";
 
 interface IncidentDetailModalProps {
   incident: Incident | null;
@@ -69,6 +73,81 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({
   useEffect(() => {
     fetchAuditLogs();
   }, [incident?.id]);
+
+  // NEXUS v2 State
+  const [actionItems, setActionItems] = useState<PostmortemActionItem[]>([]);
+  const [deployCorrelation, setDeployCorrelation] = useState<DeploymentCorrelation[]>([]);
+  const [warningBanner, setWarningBanner] = useState<string | null>(null);
+  const [rollbackStatus, setRollbackStatus] = useState<string | null>(null);
+
+  const fetchV2IncidentData = async () => {
+    if (!incident) return;
+    try {
+      const actRes = await fetch(`http://127.0.0.1:8000/api/v2/incidents/${incident.id}/action-items`);
+      if (actRes.ok) {
+        const actData = await actRes.json();
+        setActionItems(actData);
+      }
+
+      const depRes = await fetch(`http://127.0.0.1:8000/api/v2/incidents/${incident.id}/deployment-correlations`);
+      if (depRes.ok) {
+        const depData = await depRes.json();
+        setDeployCorrelation(depData);
+      }
+
+      const probRes = await fetch(`http://127.0.0.1:8000/api/v2/problems`);
+      if (probRes.ok) {
+        const probs = await probRes.json();
+        if (probs.length > 0) {
+          const compRes = await fetch(`http://127.0.0.1:8000/api/v2/problems/${probs[0].id}/action-items/completion`);
+          if (compRes.ok) {
+            const compData = await compRes.json();
+            if (compData.warning_banner) {
+              setWarningBanner(compData.warning_banner);
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("V2 incident data fetch error", e);
+    }
+  };
+
+  useEffect(() => {
+    fetchV2IncidentData();
+  }, [incident?.id]);
+
+  const handleToggleActionItem = async (itemId: string, currentItemStatus: string) => {
+    const nextStatus = currentItemStatus === "DONE" ? "OPEN" : "DONE";
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/api/v2/action-items/${itemId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus })
+      });
+      if (res.ok) {
+        setActionItems(prev => prev.map(a => a.id === itemId ? { ...a, status: nextStatus as any } : a));
+      }
+    } catch (e) {
+      console.error("Action item update error", e);
+    }
+  };
+
+  const handleRollback = async (depId: string) => {
+    setRollbackStatus("Executing Rollback...");
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/api/v2/deployments/${depId}/rollback`, {
+        method: "POST"
+      });
+      if (res.ok) {
+        setRollbackStatus("✓ Rollback Succeeded (Reverted to #481)");
+        setOptimisticStatus("RESOLVED");
+        fetchAuditLogs();
+      }
+    } catch (e) {
+      setRollbackStatus("Rollback Failed");
+    }
+  };
 
   if (!incident) return null;
 
@@ -232,7 +311,8 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({
     "Runbook",
     "Remediation",
     "Timeline",
-    "Topology"
+    "Topology",
+    "Postmortem"
   ];
 
   return (
@@ -330,6 +410,18 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({
             <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "16px", height: "100%" }}>
               {/* Left Column: Summary, Root Cause, Affected Services */}
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {/* NEXUS v2: Recurrence Warning Banner */}
+                {warningBanner && (
+                  <div style={{
+                    background: "#fffbeb", border: "1px solid #fef3c7", borderLeft: "4px solid #f59e0b",
+                    borderRadius: "6px", padding: "8px 12px", fontSize: "11px", color: "#92400e", fontWeight: 700,
+                    display: "flex", alignItems: "center", gap: "6px"
+                  }}>
+                    <WarningAmberIcon style={{ fontSize: "16px", color: "#d97706" }} />
+                    <span>{warningBanner}</span>
+                  </div>
+                )}
+
                 {/* Incident Summary */}
                 <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "12px" }}>
                   <div style={{ fontSize: "11px", fontWeight: 700, color: "#1e293b", marginBottom: "4px" }}>
@@ -678,6 +770,38 @@ SELECT pg_reload_conf();
                 )}
               </div>
 
+              {/* NEXUS v2: CI/CD Deployment Rollback Suggestion Card */}
+              {deployCorrelation.length > 0 && deployCorrelation[0].deployment?.rollback_available && (
+                <div style={{
+                  background: "#fff7ed", border: "1px solid #fdba74", borderRadius: "8px", padding: "12px 16px",
+                  display: "flex", justifyContent: "space-between", alignItems: "center"
+                }}>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", fontWeight: 700, color: "#9a3412" }}>
+                      <RocketLaunchIcon style={{ fontSize: "16px", color: "#ea580c" }} />
+                      CI/CD Deployment Correlation Detected ({Math.round(deployCorrelation[0].correlation_confidence * 100)}% Confidence)
+                    </div>
+                    <div style={{ fontSize: "11px", color: "#c2410c", marginTop: "3px" }}>
+                      Deploy <strong>{deployCorrelation[0].deployment?.version || "#482"}</strong> on <code>{deployCorrelation[0].deployment?.service || incident.primary_service_id}</code> landed {Math.max(1, Math.round(deployCorrelation[0].time_delta_seconds / 60))}m before incident trigger. Reverting will restore previous stable release.
+                    </div>
+                    {rollbackStatus && (
+                      <div style={{ fontSize: "11px", fontWeight: 700, marginTop: "4px", color: rollbackStatus.includes("Succeeded") ? "#15803d" : "#ea580c" }}>
+                        {rollbackStatus}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => handleRollback(deployCorrelation[0].deployment.id)}
+                    disabled={currentRole === "VIEWER" || rollbackStatus?.includes("Succeeded")}
+                    className="btn-tactile btn-tactile-warning"
+                    style={{ padding: "8px 16px", fontSize: "11px", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: "6px" }}
+                  >
+                    <AutoAwesomeIcon style={{ fontSize: "14px" }} />
+                    Approve & Execute Rollback
+                  </button>
+                </div>
+              )}
+
               {/* DRY RUN RESULT: Visually Shows What Ran */}
               {dryRunResult ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -835,10 +959,28 @@ SELECT pg_reload_conf();
 
           {/* TAB 6: TIMELINE */}
           {activeTab === "Timeline" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px", maxHeight: "320px", overflowY: "auto" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "360px", overflowY: "auto" }}>
               <div style={{ fontSize: "12px", fontWeight: 700, color: "#1e293b", marginBottom: "4px" }}>
-                Audit Trail & Chronological History ({auditLogs.length})
+                Audit Trail & Chronological History ({auditLogs.length + deployCorrelation.length})
               </div>
+              {/* Correlated CI/CD Deploys */}
+              {deployCorrelation.map((dc, idx) => (
+                <div key={idx} style={{
+                  padding: "8px 12px", borderLeft: "4px solid #ea580c", background: "#fff7ed",
+                  borderRadius: "0 6px 6px 0", fontSize: "11px"
+                }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", color: "#9a3412" }}>
+                    <strong style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                      <RocketLaunchIcon style={{ fontSize: "14px", color: "#ea580c" }} />
+                      CI/CD DEPLOYMENT: {dc.deployment?.version || "#482"} ({dc.deployment?.service || incident.primary_service_id})
+                    </strong>
+                    <span style={{ fontSize: "10px", color: "#c2410c", fontWeight: 600 }}>{Math.max(1, Math.round(dc.time_delta_seconds / 60))}m before trigger</span>
+                  </div>
+                  <div style={{ color: "#7c2d12", marginTop: "3px" }}>
+                    Source: <code>{dc.deployment?.source || "github-actions"}</code> by {dc.deployment?.deployed_by || "devops-ci"} (Confidence: {Math.round(dc.correlation_confidence * 100)}%)
+                  </div>
+                </div>
+              ))}
               {auditLogs.map((log) => (
                 <div key={log.id} style={{
                   padding: "6px 10px", borderLeft: "3px solid #3b82f6", background: "#f8fafc",
@@ -894,6 +1036,117 @@ SELECT pg_reload_conf();
                     📦 Billing Service (Cascaded)
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 8: POSTMORTEM & ACTION ITEMS */}
+          {activeTab === "Postmortem" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "14px", height: "100%", overflowY: "auto" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ fontSize: "12px", fontWeight: 700, color: "#1e293b", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <AssignmentTurnedInIcon style={{ fontSize: "16px", color: "#4f46e5" }} />
+                    Postmortem & Action Items Tracking
+                  </div>
+                  <div style={{ fontSize: "11px", color: "#64748b", marginTop: "2px" }}>
+                    Track preventive engineering fixes, owners, deadlines, and closure status to prevent recurrence.
+                  </div>
+                </div>
+                <button
+                  onClick={handleFetchPostmortem}
+                  disabled={loadingPostmortem}
+                  className="btn-tactile btn-tactile-primary"
+                  style={{ padding: "6px 14px", fontSize: "11px", display: "flex", alignItems: "center", gap: "5px" }}
+                >
+                  <FileDownloadIcon style={{ fontSize: "14px" }} />
+                  {loadingPostmortem ? "Exporting..." : "Download Postmortem MD"}
+                </button>
+              </div>
+
+              {/* Action Item Completion Progress */}
+              <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "12px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                  <span style={{ fontSize: "11px", fontWeight: 700, color: "#1e293b" }}>
+                    Remediation Progress: {actionItems.filter(a => a.status === "DONE").length} of {actionItems.length} Resolved
+                  </span>
+                  <span style={{ fontSize: "11px", fontWeight: 800, color: actionItems.length > 0 && actionItems.every(a => a.status === "DONE") ? "#16a34a" : "#d97706" }}>
+                    {actionItems.length > 0 ? Math.round((actionItems.filter(a => a.status === "DONE").length / actionItems.length) * 100) : 0}% Closed
+                  </span>
+                </div>
+                <div style={{ width: "100%", height: "7px", background: "#e2e8f0", borderRadius: "4px", overflow: "hidden" }}>
+                  <div
+                    style={{
+                      height: "100%",
+                      width: `${actionItems.length > 0 ? (actionItems.filter(a => a.status === "DONE").length / actionItems.length) * 100 : 0}%`,
+                      background: actionItems.length > 0 && actionItems.every(a => a.status === "DONE") ? "#16a34a" : "#f59e0b",
+                      borderRadius: "4px",
+                      transition: "width 0.3s ease"
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Action Items List */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                {actionItems.length === 0 ? (
+                  <div style={{ padding: "24px", textAlign: "center", color: "#64748b", fontSize: "11px", background: "#f8fafc", borderRadius: "8px", border: "1px dashed #cbd5e1" }}>
+                    No action items linked to this incident. Action items are generated during postmortem review.
+                  </div>
+                ) : (
+                  actionItems.map((item) => {
+                    const isDone = item.status === "DONE";
+                    return (
+                      <div
+                        key={item.id}
+                        style={{
+                          background: isDone ? "#f8fafc" : "#ffffff",
+                          border: `1px solid ${isDone ? "#e2e8f0" : "#cbd5e1"}`,
+                          borderRadius: "8px",
+                          padding: "10px 14px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: "12px"
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px", flex: 1 }}>
+                          <input
+                            type="checkbox"
+                            checked={isDone}
+                            onChange={() => handleToggleActionItem(item.id, item.status)}
+                            style={{ cursor: "pointer", width: "16px", height: "16px", accentColor: "#4f46e5" }}
+                          />
+                          <div>
+                            <div style={{
+                              fontSize: "11.5px",
+                              fontWeight: 600,
+                              color: isDone ? "#94a3b8" : "#0f172a",
+                              textDecoration: isDone ? "line-through" : "none"
+                            }}>
+                              {item.description}
+                            </div>
+                            <div style={{ display: "flex", gap: "8px", marginTop: "3px", fontSize: "10px", color: "#64748b" }}>
+                              <span>Owner: <strong style={{ color: "#334155" }}>{item.owner || "Unassigned"}</strong></span>
+                              {item.due_date && <span>• Due: <strong>{new Date(item.due_date).toLocaleDateString()}</strong></span>}
+                              <span>• Source: <strong>{item.source}</strong></span>
+                            </div>
+                          </div>
+                        </div>
+                        <span style={{
+                          fontSize: "10px",
+                          fontWeight: 700,
+                          padding: "3px 8px",
+                          borderRadius: "6px",
+                          background: isDone ? "#dcfce7" : "#fef3c7",
+                          color: isDone ? "#15803d" : "#b45309"
+                        }}>
+                          {item.status}
+                        </span>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
           )}
