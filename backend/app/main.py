@@ -1022,6 +1022,41 @@ def gemini_copilot_chat(req: schemas.GeminiChatRequest, db: Session = Depends(ge
     elif req.service_id:
         incident_data = {"primary_service_id": req.service_id}
 
-    return gemini_service.ask_gemini_copilot(req.query, incident_data)
+    # Presidio PII Shield: automatically scrub sensitive credentials before sending to Gemini
+    from . import enterprise_services
+    scrub_res = enterprise_services.scrub_telemetry_pii(req.query)
+    clean_query = scrub_res["scrubbed_text"]
+
+    copilot_response = gemini_service.ask_gemini_copilot(clean_query, incident_data)
+    if isinstance(copilot_response, dict):
+        copilot_response["pii_shield"] = scrub_res
+    return copilot_response
+
+
+# ==================== ENTERPRISE DECISION LAYER & RESILIENCE ENDPOINTS ====================
+
+@app.post("/api/v1/security/presidio-scrub", response_model=Dict[str, Any])
+def presidio_scrub_endpoint(payload: Dict[str, Any]):
+    from . import enterprise_services
+    text = payload.get("text", "")
+    return enterprise_services.scrub_telemetry_pii(text)
+
+@app.post("/api/v1/war-room/generate-bridge", response_model=Dict[str, Any])
+def war_room_bridge_endpoint(payload: Dict[str, Any]):
+    from . import enterprise_services
+    incident_id = int(payload.get("incident_id", 1))
+    return enterprise_services.generate_war_room_bridge(incident_id)
+
+@app.post("/api/v1/infrastructure/canary-rollback", response_model=Dict[str, Any])
+def canary_rollback_endpoint(payload: Dict[str, Any]):
+    from . import enterprise_services
+    service_id = str(payload.get("service_id", "claims-database"))
+    incident_id = int(payload.get("incident_id", 1))
+    return enterprise_services.execute_canary_rollback(service_id, incident_id)
+
+@app.get("/api/v1/financial/decision-register", response_model=Dict[str, Any])
+def financial_decision_register_endpoint():
+    from . import enterprise_services
+    return enterprise_services.get_financial_decision_register()
 
 

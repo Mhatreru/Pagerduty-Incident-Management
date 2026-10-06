@@ -12,9 +12,7 @@ import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import SecurityIcon from "@mui/icons-material/Security";
 import HubIcon from "@mui/icons-material/Hub";
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import SendIcon from "@mui/icons-material/Send";
 import { RoiMetrics, Problem } from "../types";
 
 interface OverviewPageProps {
@@ -66,9 +64,6 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
   // NEXUS v2 State
   const [roiMetrics, setRoiMetrics] = React.useState<RoiMetrics | null>(null);
   const [topProblem, setTopProblem] = React.useState<Problem | null>(null);
-  const [askQuery, setAskQuery] = React.useState("");
-  const [askResponse, setAskResponse] = React.useState<any | null>(null);
-  const [isAsking, setIsAsking] = React.useState(false);
 
   React.useEffect(() => {
     const fetchV2Data = async () => {
@@ -90,27 +85,6 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
     const interval = setInterval(fetchV2Data, 6000);
     return () => clearInterval(interval);
   }, []);
-
-  const handleAskSubmit = async (queryText?: string) => {
-    const q = queryText || askQuery;
-    if (!q || q.trim().length < 3) return;
-    setIsAsking(true);
-    try {
-      const res = await fetch("http://127.0.0.1:8000/api/v2/ask", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: q })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setAskResponse(data);
-      }
-    } catch (e) {
-      console.error("Ask query error", e);
-    } finally {
-      setIsAsking(false);
-    }
-  };
 
   return (
     <div style={{
@@ -463,102 +437,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
         </div>
       </div>
 
-      {/* -------------------------------------------------------------
-          ROW 3.6: ASK NEXUS (NATURAL-LANGUAGE FLEET INTELLIGENCE)
-          ------------------------------------------------------------- */}
-      <div style={{
-        background: "#ffffff",
-        border: "1px solid #e2e8f0",
-        borderRadius: "8px",
-        padding: "10px 14px",
-        marginBottom: "8px",
-        boxShadow: "0 1px 2px rgba(0,0,0,0.03)"
-      }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <AutoAwesomeIcon style={{ fontSize: "15px", color: "#6366f1" }} />
-            <span style={{ fontSize: "11px", fontWeight: 800, color: "#0f172a", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-              Ask NEXUS — Fleet Intelligence Copilot
-            </span>
-            <span style={{ fontSize: "10px", color: "#64748b" }}>
-              • Natural-language query over fleet incidents, root causes, and postmortem tasks
-            </span>
-          </div>
-        </div>
 
-        {/* Input Bar & Suggested Prompt Chips */}
-        <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-          <div style={{ position: "relative", flex: 1 }}>
-            <input
-              type="text"
-              value={askQuery}
-              onChange={(e) => setAskQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleAskSubmit()}
-              placeholder="Ask anything about fleet incidents, recurring patterns, MTTR, or action items..."
-              style={{
-                width: "100%", padding: "7px 10px", fontSize: "12px", border: "1px solid #cbd5e1",
-                borderRadius: "6px", boxSizing: "border-box", outline: "none", color: "#0f172a"
-              }}
-            />
-          </div>
-          <button
-            onClick={() => handleAskSubmit()}
-            disabled={isAsking}
-            style={{
-              background: "#4f46e5", color: "#ffffff", border: "none", borderRadius: "6px",
-              padding: "7px 14px", fontSize: "11px", fontWeight: 700, cursor: "pointer",
-              display: "flex", alignItems: "center", gap: "4px"
-            }}
-          >
-            <SendIcon style={{ fontSize: "12px" }} />
-            {isAsking ? "Analyzing..." : "Ask"}
-          </button>
-        </div>
-
-        {/* Suggested Queries Chips */}
-        <div style={{ display: "flex", gap: "6px", marginTop: "6px", flexWrap: "wrap", alignItems: "center" }}>
-          <span style={{ fontSize: "9.5px", color: "#64748b", fontWeight: 600 }}>Suggested:</span>
-          {[
-            "What is our top recurring problem?",
-            "How many P1 incidents occurred this month?",
-            "Show open postmortem action items",
-            "What is the average MTTR reduction?"
-          ].map((chip, idx) => (
-            <button
-              key={idx}
-              onClick={() => {
-                setAskQuery(chip);
-                handleAskSubmit(chip);
-              }}
-              style={{
-                background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: "12px",
-                padding: "2px 8px", fontSize: "10px", color: "#475569", cursor: "pointer",
-                transition: "background 0.15s"
-              }}
-            >
-              {chip}
-            </button>
-          ))}
-        </div>
-
-        {/* Ask Response Container */}
-        {askResponse && (
-          <div style={{
-            marginTop: "8px", background: "#f8fafc", border: "1px solid #e2e8f0",
-            borderLeft: "3px solid #6366f1", borderRadius: "6px", padding: "8px 12px", fontSize: "11.5px", color: "#1e293b"
-          }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
-              <span style={{ fontSize: "10px", fontWeight: 700, color: "#6366f1", display: "flex", alignItems: "center", gap: "4px" }}>
-                <AutoAwesomeIcon style={{ fontSize: "12px" }} /> NEXUS Intelligence Answer
-              </span>
-              <span style={{ fontSize: "9px", background: "#dcfce7", color: "#16a34a", padding: "1px 6px", borderRadius: "4px", fontWeight: 700 }}>
-                GROUNDED FLEET DATA
-              </span>
-            </div>
-            <div style={{ lineHeight: "1.5" }}>{askResponse.answer}</div>
-          </div>
-        )}
-      </div>
 
       {/* -------------------------------------------------------------
           ROW 4: THE 3-STAGE OPERATIONAL PIPELINE FLOW TRACKER

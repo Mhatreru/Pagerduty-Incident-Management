@@ -12,10 +12,11 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import TerminalIcon from "@mui/icons-material/Terminal";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import SecurityIcon from "@mui/icons-material/Security";
+import VideocamIcon from "@mui/icons-material/Videocam";
+import ShieldIcon from "@mui/icons-material/Shield";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
-import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
-import { PostmortemActionItem, DeploymentCorrelation } from "../types";
+import { DeploymentCorrelation } from "../types";
 
 interface IncidentDetailModalProps {
   incident: Incident | null;
@@ -74,21 +75,29 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({
     fetchAuditLogs();
   }, [incident?.id]);
 
-  // NEXUS v2 State
-  const [actionItems, setActionItems] = useState<PostmortemActionItem[]>([]);
+  // Enterprise War Room Bridge & Canary State
   const [deployCorrelation, setDeployCorrelation] = useState<DeploymentCorrelation[]>([]);
   const [warningBanner, setWarningBanner] = useState<string | null>(null);
   const [rollbackStatus, setRollbackStatus] = useState<string | null>(null);
 
+  // Automated Incident War Room Video Bridge
+  const [warRoomBridge, setWarRoomBridge] = useState<{
+    meet_url: string;
+    slack_channel: string;
+    commander: string;
+    roster_paged: Array<{ name: string; role: string; status: string }>;
+    whisper_recorder: { status: string; model: string; live_snippet: string };
+  } | null>(null);
+  const [isGeneratingBridge, setIsGeneratingBridge] = useState(false);
+
+  // Canary Rollback Automation State
+  const [canaryLog, setCanaryLog] = useState<string[]>([]);
+  const [isCanaryRunning, setIsCanaryRunning] = useState(false);
+  const [canarySuccess, setCanarySuccess] = useState(false);
+
   const fetchV2IncidentData = async () => {
     if (!incident) return;
     try {
-      const actRes = await fetch(`http://127.0.0.1:8000/api/v2/incidents/${incident.id}/action-items`);
-      if (actRes.ok) {
-        const actData = await actRes.json();
-        setActionItems(actData);
-      }
-
       const depRes = await fetch(`http://127.0.0.1:8000/api/v2/incidents/${incident.id}/deployment-correlations`);
       if (depRes.ok) {
         const depData = await depRes.json();
@@ -117,19 +126,51 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({
     fetchV2IncidentData();
   }, [incident?.id]);
 
-  const handleToggleActionItem = async (itemId: string, currentItemStatus: string) => {
-    const nextStatus = currentItemStatus === "DONE" ? "OPEN" : "DONE";
+  const handleLaunchWarRoomBridge = async () => {
+    if (!incident) return;
+    setIsGeneratingBridge(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/v2/action-items/${itemId}`, {
-        method: "PATCH",
+      const res = await fetch("http://127.0.0.1:8000/api/v1/war-room/generate-bridge", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: nextStatus })
+        body: JSON.stringify({ incident_id: incident.id })
       });
       if (res.ok) {
-        setActionItems(prev => prev.map(a => a.id === itemId ? { ...a, status: nextStatus as any } : a));
+        const bridgeData = await res.json();
+        setWarRoomBridge(bridgeData);
       }
     } catch (e) {
-      console.error("Action item update error", e);
+      console.error("War room bridge error", e);
+    } finally {
+      setIsGeneratingBridge(false);
+    }
+  };
+
+  const handleExecuteCanaryRollback = async () => {
+    if (!incident) return;
+    setIsCanaryRunning(true);
+    setCanarySuccess(false);
+    setCanaryLog(["[INITIALIZING] Connecting to Terraform / Ansible CLI worker engine..."]);
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/v1/infrastructure/canary-rollback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          service_id: incident.primary_service_id,
+          incident_id: incident.id
+        })
+      });
+      if (res.ok) {
+        const result = await res.json();
+        setCanaryLog(result.steps || []);
+        setCanarySuccess(true);
+        setOptimisticStatus("RESOLVED");
+        fetchAuditLogs();
+      }
+    } catch (e: any) {
+      setCanaryLog(prev => [...prev, `[ERROR] Canary rollback pipeline failed: ${e.message}`]);
+    } finally {
+      setIsCanaryRunning(false);
     }
   };
 
@@ -311,8 +352,7 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({
     "Runbook",
     "Remediation",
     "Timeline",
-    "Topology",
-    "Postmortem"
+    "Topology"
   ];
 
   return (
@@ -357,12 +397,33 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({
               </span>
             </div>
 
-            <button
-              onClick={onClose}
-              style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b" }}
-            >
-              <CloseIcon style={{ fontSize: "20px" }} />
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <button
+                onClick={handleLaunchWarRoomBridge}
+                disabled={isGeneratingBridge}
+                className="btn-tactile btn-tactile-secondary"
+                style={{
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  color: "#1d4ed8",
+                  borderColor: "#bfdbfe",
+                  background: "#eff6ff"
+                }}
+              >
+                <VideocamIcon style={{ fontSize: "15px", color: "#2563eb" }} />
+                <span>{isGeneratingBridge ? "Spun Bridge..." : warRoomBridge ? "Video Bridge Active" : "Launch War Room Bridge"}</span>
+              </button>
+
+              <button
+                onClick={onClose}
+                style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b" }}
+              >
+                <CloseIcon style={{ fontSize: "20px" }} />
+              </button>
+            </div>
           </div>
 
           {/* Metadata badges strip */}
@@ -377,6 +438,52 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({
             <span>•</span>
             <span>Business Impact: <strong style={{ color: "#dc2626" }}>High</strong></span>
           </div>
+
+          {/* Automated Incident War Room Video Bridge Banner */}
+          {warRoomBridge && (
+            <div style={{
+              marginTop: "8px",
+              background: "#1e1b4b",
+              border: "1px solid #4338ca",
+              borderRadius: "8px",
+              padding: "10px 14px",
+              color: "#e0e7ff",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center"
+            }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "11px", fontWeight: 700 }}>
+                  <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#ef4444", display: "inline-block" }} className="beacon-live" />
+                  <span>INCIDENT WAR ROOM BRIDGE LIVE</span>
+                  <span style={{ color: "#a5b4fc" }}>• {warRoomBridge.slack_channel}</span>
+                </div>
+                <div style={{ fontSize: "10px", color: "#c7d2fe", marginTop: "3px" }}>
+                  Commander: <strong>{warRoomBridge.commander}</strong> • Whisper Edge Transcriber: <em>"{warRoomBridge.whisper_recorder.live_snippet}"</em>
+                </div>
+              </div>
+              <a
+                href={warRoomBridge.meet_url}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  background: "#4f46e5",
+                  color: "#ffffff",
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  textDecoration: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px"
+                }}
+              >
+                <VideocamIcon style={{ fontSize: "14px" }} />
+                Join Google Meet
+              </a>
+            </div>
+          )}
 
           {/* Tab Navigation Row (Mockup #3) */}
           <div style={{
@@ -586,9 +693,19 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({
                     Root Cause: {aiData?.root_cause || "PostgreSQL connection pool exhaustion due to stagnant unindexed query locks."}
                   </div>
                 </div>
-                <span style={{ fontSize: "11px", fontWeight: 700, color: "#16a34a", background: "#f0fdf4", border: "1px solid #bbf7d0", padding: "2px 8px", borderRadius: "6px" }}>
-                  Confidence: {aiData?.confidence || 94}%
-                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{
+                    fontSize: "10px", fontWeight: 700, color: "#1e40af", background: "#dbeafe",
+                    border: "1px solid #93c5fd", padding: "3px 8px", borderRadius: "6px",
+                    display: "flex", alignItems: "center", gap: "4px"
+                  }}>
+                    <ShieldIcon style={{ fontSize: "13px", color: "#2563eb" }} />
+                    PRESIDIO PII SHIELD: ACTIVE (SOC2)
+                  </span>
+                  <span style={{ fontSize: "11px", fontWeight: 700, color: "#16a34a", background: "#f0fdf4", border: "1px solid #bbf7d0", padding: "2px 8px", borderRadius: "6px" }}>
+                    Confidence: {aiData?.confidence || 94}%
+                  </span>
+                </div>
               </div>
 
               {/* Quick AI Action Chips */}
@@ -734,7 +851,7 @@ SELECT pg_reload_conf();
                       Target: <code>{incident.primary_service_id}</code> • Runbook: <code>{incident.runbook_id || "rb-db-pool-recovery"}</code> • Status: <strong>{incident.remediation_status || "AWAITING_APPROVAL"}</strong>
                     </div>
                   </div>
-                  <div style={{ display: "flex", gap: "8px" }}>
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                     <button
                       onClick={() => handleRunRemediation(true)}
                       disabled={runbookExecuting}
@@ -743,6 +860,15 @@ SELECT pg_reload_conf();
                     >
                       <TerminalIcon style={{ fontSize: "14px" }} />
                       {dryRunResult ? "Re-run Dry Run" : "Simulate Dry Run"}
+                    </button>
+                    <button
+                      onClick={handleExecuteCanaryRollback}
+                      disabled={isCanaryRunning || currentRole === "VIEWER"}
+                      className="btn-tactile btn-tactile-warning"
+                      style={{ padding: "7px 14px", fontSize: "11px", display: "flex", alignItems: "center", gap: "5px" }}
+                    >
+                      <TerminalIcon style={{ fontSize: "14px" }} />
+                      {isCanaryRunning ? "Running Canary..." : "Canary Rollback (Terraform/Ansible)"}
                     </button>
                     <button
                       onClick={() => handleRunRemediation(false)}
@@ -755,6 +881,32 @@ SELECT pg_reload_conf();
                     </button>
                   </div>
                 </div>
+
+                {/* Canary Rollback Live Terminal Window */}
+                {canaryLog.length > 0 && (
+                  <div style={{
+                    marginTop: "12px", background: "#0f172a", border: "1px solid #334155",
+                    borderRadius: "8px", padding: "12px 14px", color: "#f8fafc", fontFamily: "monospace", fontSize: "11px"
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px", borderBottom: "1px solid #1e293b", paddingBottom: "6px" }}>
+                      <span style={{ color: "#38bdf8", fontWeight: 700 }}>
+                        [INFRASTRUCTURE AUTOMATION] Canary Rollback Execution Log
+                      </span>
+                      {canarySuccess ? (
+                        <span style={{ color: "#4ade80", fontWeight: 700 }}>✓ CANARY PROMOTED (100% HEALTHY)</span>
+                      ) : (
+                        <span style={{ color: "#fbbf24" }}>PROCESSING CANARY PROBES...</span>
+                      )}
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      {canaryLog.map((step, idx) => (
+                        <div key={idx} style={{ color: step.includes("CRITICAL") || step.includes("ERROR") ? "#f87171" : step.includes("OK") || step.includes("satisfied") ? "#86efac" : "#cbd5e1" }}>
+                          {step}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {runbookMessage && (
                   <div style={{
@@ -1036,117 +1188,6 @@ SELECT pg_reload_conf();
                     📦 Billing Service (Cascaded)
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 8: POSTMORTEM & ACTION ITEMS */}
-          {activeTab === "Postmortem" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "14px", height: "100%", overflowY: "auto" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <div style={{ fontSize: "12px", fontWeight: 700, color: "#1e293b", display: "flex", alignItems: "center", gap: "6px" }}>
-                    <AssignmentTurnedInIcon style={{ fontSize: "16px", color: "#4f46e5" }} />
-                    Postmortem & Action Items Tracking
-                  </div>
-                  <div style={{ fontSize: "11px", color: "#64748b", marginTop: "2px" }}>
-                    Track preventive engineering fixes, owners, deadlines, and closure status to prevent recurrence.
-                  </div>
-                </div>
-                <button
-                  onClick={handleFetchPostmortem}
-                  disabled={loadingPostmortem}
-                  className="btn-tactile btn-tactile-primary"
-                  style={{ padding: "6px 14px", fontSize: "11px", display: "flex", alignItems: "center", gap: "5px" }}
-                >
-                  <FileDownloadIcon style={{ fontSize: "14px" }} />
-                  {loadingPostmortem ? "Exporting..." : "Download Postmortem MD"}
-                </button>
-              </div>
-
-              {/* Action Item Completion Progress */}
-              <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "12px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                  <span style={{ fontSize: "11px", fontWeight: 700, color: "#1e293b" }}>
-                    Remediation Progress: {actionItems.filter(a => a.status === "DONE").length} of {actionItems.length} Resolved
-                  </span>
-                  <span style={{ fontSize: "11px", fontWeight: 800, color: actionItems.length > 0 && actionItems.every(a => a.status === "DONE") ? "#16a34a" : "#d97706" }}>
-                    {actionItems.length > 0 ? Math.round((actionItems.filter(a => a.status === "DONE").length / actionItems.length) * 100) : 0}% Closed
-                  </span>
-                </div>
-                <div style={{ width: "100%", height: "7px", background: "#e2e8f0", borderRadius: "4px", overflow: "hidden" }}>
-                  <div
-                    style={{
-                      height: "100%",
-                      width: `${actionItems.length > 0 ? (actionItems.filter(a => a.status === "DONE").length / actionItems.length) * 100 : 0}%`,
-                      background: actionItems.length > 0 && actionItems.every(a => a.status === "DONE") ? "#16a34a" : "#f59e0b",
-                      borderRadius: "4px",
-                      transition: "width 0.3s ease"
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Action Items List */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                {actionItems.length === 0 ? (
-                  <div style={{ padding: "24px", textAlign: "center", color: "#64748b", fontSize: "11px", background: "#f8fafc", borderRadius: "8px", border: "1px dashed #cbd5e1" }}>
-                    No action items linked to this incident. Action items are generated during postmortem review.
-                  </div>
-                ) : (
-                  actionItems.map((item) => {
-                    const isDone = item.status === "DONE";
-                    return (
-                      <div
-                        key={item.id}
-                        style={{
-                          background: isDone ? "#f8fafc" : "#ffffff",
-                          border: `1px solid ${isDone ? "#e2e8f0" : "#cbd5e1"}`,
-                          borderRadius: "8px",
-                          padding: "10px 14px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          gap: "12px"
-                        }}
-                      >
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px", flex: 1 }}>
-                          <input
-                            type="checkbox"
-                            checked={isDone}
-                            onChange={() => handleToggleActionItem(item.id, item.status)}
-                            style={{ cursor: "pointer", width: "16px", height: "16px", accentColor: "#4f46e5" }}
-                          />
-                          <div>
-                            <div style={{
-                              fontSize: "11.5px",
-                              fontWeight: 600,
-                              color: isDone ? "#94a3b8" : "#0f172a",
-                              textDecoration: isDone ? "line-through" : "none"
-                            }}>
-                              {item.description}
-                            </div>
-                            <div style={{ display: "flex", gap: "8px", marginTop: "3px", fontSize: "10px", color: "#64748b" }}>
-                              <span>Owner: <strong style={{ color: "#334155" }}>{item.owner || "Unassigned"}</strong></span>
-                              {item.due_date && <span>• Due: <strong>{new Date(item.due_date).toLocaleDateString()}</strong></span>}
-                              <span>• Source: <strong>{item.source}</strong></span>
-                            </div>
-                          </div>
-                        </div>
-                        <span style={{
-                          fontSize: "10px",
-                          fontWeight: 700,
-                          padding: "3px 8px",
-                          borderRadius: "6px",
-                          background: isDone ? "#dcfce7" : "#fef3c7",
-                          color: isDone ? "#15803d" : "#b45309"
-                        }}>
-                          {item.status}
-                        </span>
-                      </div>
-                    );
-                  })
-                )}
               </div>
             </div>
           )}
