@@ -7,13 +7,11 @@ import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import SpeedIcon from "@mui/icons-material/Speed";
 import LayersIcon from "@mui/icons-material/Layers";
-import TrendingDownIcon from "@mui/icons-material/TrendingDown";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import PsychologyIcon from "@mui/icons-material/Psychology";
-import SecurityIcon from "@mui/icons-material/Security";
-import HubIcon from "@mui/icons-material/Hub";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import { RoiMetrics, Problem } from "../types";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { RoiMetrics } from "../types";
 
 interface OverviewPageProps {
   services?: Service[];
@@ -51,7 +49,6 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
   const activeIncidents = incidents.filter(i => i.status !== "RESOLVED");
   const isOutage = services.some(s => s.status === "CRITICAL" || s.status === "DEGRADED") || activeIncidents.length > 0;
 
-  // Formatted date string
   const formattedDate = new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
@@ -61,22 +58,13 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
     hour12: true
   }).format(new Date()).replace(",", " •");
 
-  // NEXUS v2 State
   const [roiMetrics, setRoiMetrics] = React.useState<RoiMetrics | null>(null);
-  const [topProblem, setTopProblem] = React.useState<Problem | null>(null);
 
   React.useEffect(() => {
     const fetchV2Data = async () => {
       try {
-        const [roiRes, probRes] = await Promise.all([
-          fetch("http://127.0.0.1:8000/api/v2/analytics/roi"),
-          fetch("http://127.0.0.1:8000/api/v2/problems")
-        ]);
+        const roiRes = await fetch("http://127.0.0.1:8000/api/v2/analytics/roi");
         if (roiRes.ok) setRoiMetrics(await roiRes.json());
-        if (probRes.ok) {
-          const probs = await probRes.json();
-          if (probs.length > 0) setTopProblem(probs[0]);
-        }
       } catch (e) {
         console.error("V2 data fetch error", e);
       }
@@ -88,120 +76,95 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
 
   return (
     <div style={{
-      padding: "0 4px 10px 4px",
+      padding: "20px 24px",
+      maxWidth: "1500px",
+      margin: "0 auto",
       fontFamily: "Inter, sans-serif",
-      minHeight: "calc(100vh - 32px)",
-      boxSizing: "border-box",
-      overflowY: "auto",
-      overflowX: "hidden",
-      display: "flex",
-      flexDirection: "column"
+      color: "#0f172a",
+      boxSizing: "border-box"
     }}>
-      {/* -------------------------------------------------------------
-          TOP BAR: Title & Status Beacon on Left, User & Role on Right
-          ------------------------------------------------------------- */}
+      {/* ----------------- TOP HEADER ----------------- */}
       <div style={{
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        borderBottom: "1px solid #e2e8f0",
-        padding: "4px 0 6px 0",
-        background: "#ffffff"
+        marginBottom: "20px",
+        paddingBottom: "16px",
+        borderBottom: "1px solid #e2e8f0"
       }}>
-        {/* Title and Live Beacon */}
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <h1 style={{ margin: 0, fontSize: "18px", fontWeight: 800, color: "#0f172a", letterSpacing: "-0.02em" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <h1 style={{ margin: 0, fontSize: "24px", fontWeight: 800, color: "#0f172a", letterSpacing: "-0.5px" }}>
               NEXUS SRE Cockpit
             </h1>
             {isOutage ? (
               <span style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "5px",
-                padding: "2px 8px",
-                borderRadius: "12px",
+                gap: "6px",
+                padding: "3px 10px",
+                borderRadius: "16px",
                 background: "#fee2e2",
                 color: "#dc2626",
                 fontSize: "11px",
                 fontWeight: 700
               }}>
                 <span style={{
-                  width: "7px",
-                  height: "7px",
+                  width: "8px",
+                  height: "8px",
                   borderRadius: "50%",
                   background: "#dc2626",
                   animation: "pulse 1.5s infinite"
                 }} />
-                P1 Degradation Detected
+                P1 Degradation Active
               </span>
             ) : (
               <span style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "5px",
-                padding: "2px 8px",
-                borderRadius: "12px",
+                gap: "6px",
+                padding: "3px 10px",
+                borderRadius: "16px",
                 background: "#dcfce7",
                 color: "#15803d",
                 fontSize: "11px",
                 fontWeight: 700
               }}>
-                <span style={{
-                  width: "7px",
-                  height: "7px",
-                  borderRadius: "50%",
-                  background: "#16a34a"
-                }} />
-                100% Operational • All Stages Green
+                <CheckCircleIcon style={{ fontSize: "14px", color: "#16a34a" }} />
+                100% Operational • All Systems Green
               </span>
             )}
           </div>
-          <div style={{ fontSize: "10.5px", color: "#64748b", marginTop: "2px" }}>
-            Autonomous Incident Lifecycle: <strong>1</strong> Dynatrace APM ➔ <strong>2</strong> Incident Management (Gemini AI) ➔ <strong>3</strong> Incident Response (PagerDuty)
-          </div>
+          <p style={{ fontSize: "13px", color: "#64748b", margin: "4px 0 0 0" }}>
+            Real-time telemetry orchestration: <strong>Stage 1</strong> Dynatrace APM ➔ <strong>Stage 2</strong> Gemini AI Triage ➔ <strong>Stage 3</strong> PagerDuty On-Call
+          </p>
         </div>
 
         {/* User Info & Role Selector */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <span style={{ fontSize: "11px", color: "#64748b", fontWeight: 500 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <span style={{ fontSize: "12px", color: "#64748b", fontWeight: 500 }}>
             {formattedDate}
           </span>
 
           <div style={{
-            width: "26px",
-            height: "26px",
-            borderRadius: "50%",
-            background: "#4f46e5",
-            color: "#fff",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            fontSize: "11px",
-            fontWeight: 700
-          }}>
-            {currentRole.charAt(0).toUpperCase()}
-          </div>
-
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "5px",
-            background: "#ffffff",
-            padding: "3px 6px",
-            borderRadius: "6px",
+            gap: "8px",
+            background: "#f8fafc",
+            padding: "4px 10px",
+            borderRadius: "8px",
             border: "1px solid #cbd5e1"
           }}>
-            <span style={{ fontSize: "9.5px", fontWeight: 700, color: "#64748b" }}>ROLE:</span>
+            <span style={{ fontSize: "10px", fontWeight: 700, color: "#64748b" }}>ROLE:</span>
             <select
               value={currentRole}
               onChange={(e) => onRoleChange(e.target.value)}
               style={{
                 border: "none",
                 background: "transparent",
-                fontSize: "10.5px",
+                fontSize: "12px",
                 fontWeight: 700,
-                color: "#1e293b",
+                color: "#0f172a",
                 cursor: "pointer",
                 outline: "none"
               }}
@@ -214,10 +177,8 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
         </div>
       </div>
 
-      {/* -------------------------------------------------------------
-          ROW 2: SIMULATION CONTROLS
-          ------------------------------------------------------------- */}
-      <div style={{ marginTop: "4px", marginBottom: "6px" }}>
+      {/* ----------------- SIMULATION DRILL BAR ----------------- */}
+      <div style={{ marginBottom: "20px" }}>
         <SimulationBar
           currentRole={currentRole}
           onTriggerCascade={onTriggerCascade}
@@ -230,471 +191,309 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
         />
       </div>
 
-      {/* -------------------------------------------------------------
-          ROW 3: 5 HIGH-LEVEL SRE KPI METRICS
-          ------------------------------------------------------------- */}
+      {/* ----------------- 4 CLEAN, SPACIOUS EXECUTIVE KPIS ----------------- */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: "repeat(5, 1fr)",
-        gap: "8px",
-        marginBottom: "8px"
+        gridTemplateColumns: "repeat(4, 1fr)",
+        gap: "16px",
+        marginBottom: "24px"
       }}>
         {/* Availability */}
         <div style={{
           background: "#ffffff",
           border: "1px solid #e2e8f0",
           borderRadius: "8px",
-          padding: "9px 12px",
-          display: "flex",
-          alignItems: "center",
-          gap: "9px",
-          boxShadow: "0 1px 2px rgba(0,0,0,0.03)"
+          padding: "16px 18px",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
         }}>
-          <div style={{
-            background: isOutage ? "#fee2e2" : "#dcfce7",
-            color: isOutage ? "#dc2626" : "#16a34a",
-            padding: "7px",
-            borderRadius: "6px",
-            display: "flex"
-          }}>
-            <SpeedIcon style={{ fontSize: "19px" }} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+            <span style={{ fontSize: "10px", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              CLUSTER AVAILABILITY
+            </span>
+            <SpeedIcon style={{ fontSize: "18px", color: isOutage ? "#dc2626" : "#16a34a" }} />
           </div>
-          <div>
-            <div style={{ fontSize: "9.5px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Cluster Uptime</div>
-            <div style={{ fontSize: "15px", fontWeight: 800, color: isOutage ? "#dc2626" : "#0f172a" }}>
-              {isOutage ? "98.4%" : "99.98%"}
-            </div>
+          <div style={{ fontSize: "28px", fontWeight: 800, color: isOutage ? "#dc2626" : "#0f172a", lineHeight: "1.1" }}>
+            {isOutage ? "98.4%" : "99.98%"}
+          </div>
+          <div style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>
+            Target SLA: 99.90%
           </div>
         </div>
 
-        {/* Open Incidents */}
+        {/* Active Incidents */}
         <div style={{
           background: "#ffffff",
           border: `1px solid ${activeIncidents.length > 0 ? "#fecdd3" : "#e2e8f0"}`,
           borderRadius: "8px",
-          padding: "9px 12px",
-          display: "flex",
-          alignItems: "center",
-          gap: "9px",
-          boxShadow: "0 1px 2px rgba(0,0,0,0.03)"
+          padding: "16px 18px",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+          borderBottom: activeIncidents.length > 0 ? "3px solid #dc2626" : "1px solid #e2e8f0"
         }}>
-          <div style={{
-            background: activeIncidents.length > 0 ? "#fee2e2" : "#f1f5f9",
-            color: activeIncidents.length > 0 ? "#dc2626" : "#475569",
-            padding: "7px",
-            borderRadius: "6px",
-            display: "flex"
-          }}>
-            <WarningAmberIcon style={{ fontSize: "19px" }} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+            <span style={{ fontSize: "10px", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              OPEN INCIDENTS
+            </span>
+            <WarningAmberIcon style={{ fontSize: "18px", color: activeIncidents.length > 0 ? "#dc2626" : "#64748b" }} />
           </div>
-          <div>
-            <div style={{ fontSize: "9.5px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Active Incidents</div>
-            <div style={{ fontSize: "15px", fontWeight: 800, color: activeIncidents.length > 0 ? "#dc2626" : "#0f172a" }}>
-              {activeIncidents.length} P1 Open
-            </div>
+          <div style={{ fontSize: "28px", fontWeight: 800, color: activeIncidents.length > 0 ? "#dc2626" : "#0f172a", lineHeight: "1.1" }}>
+            {activeIncidents.length} {activeIncidents.length === 1 ? "Active" : "Active"}
+          </div>
+          <div style={{ fontSize: "11px", color: activeIncidents.length > 0 ? "#dc2626" : "#64748b", marginTop: "4px", fontWeight: 600 }}>
+            {activeIncidents.length > 0 ? "P1 Critical — War Room Engaged" : "All 4 Services Healthy"}
           </div>
         </div>
 
-        {/* Noise Reduction */}
+        {/* MTTR */}
         <div style={{
           background: "#ffffff",
           border: "1px solid #e2e8f0",
           borderRadius: "8px",
-          padding: "9px 12px",
-          display: "flex",
-          alignItems: "center",
-          gap: "9px",
-          boxShadow: "0 1px 2px rgba(0,0,0,0.03)"
+          padding: "16px 18px",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
         }}>
-          <div style={{ background: "#eff6ff", color: "#2563eb", padding: "7px", borderRadius: "6px", display: "flex" }}>
-            <TrendingDownIcon style={{ fontSize: "19px" }} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+            <span style={{ fontSize: "10px", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              MEAN TIME TO RECOVER (MTTR)
+            </span>
+            <LayersIcon style={{ fontSize: "18px", color: "#8b5cf6" }} />
           </div>
-          <div>
-            <div style={{ fontSize: "9.5px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Noise Deduplication</div>
-            <div style={{ fontSize: "15px", fontWeight: 800, color: "#0f172a" }}>
-              {analytics.alert_reduction_rate ? `${analytics.alert_reduction_rate}%` : "96.2%"}
-            </div>
+          <div style={{ fontSize: "28px", fontWeight: 800, color: "#0f172a", lineHeight: "1.1" }}>
+            {analytics.mttr_minutes ? `${analytics.mttr_minutes}m` : "3.8m"}
+          </div>
+          <div style={{ fontSize: "11px", color: "#16a34a", marginTop: "4px", fontWeight: 600 }}>
+            ↓ 91.6% faster with AI Runbooks
           </div>
         </div>
 
-        {/* Avg MTTR */}
+        {/* Financial ROI */}
         <div style={{
           background: "#ffffff",
           border: "1px solid #e2e8f0",
           borderRadius: "8px",
-          padding: "9px 12px",
-          display: "flex",
-          alignItems: "center",
-          gap: "9px",
-          boxShadow: "0 1px 2px rgba(0,0,0,0.03)"
+          padding: "16px 18px",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
         }}>
-          <div style={{ background: "#faf5ff", color: "#9333ea", padding: "7px", borderRadius: "6px", display: "flex" }}>
-            <LayersIcon style={{ fontSize: "19px" }} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+            <span style={{ fontSize: "10px", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              FINANCIAL DOWNTIME SAVED
+            </span>
+            <AttachMoneyIcon style={{ fontSize: "18px", color: "#16a34a" }} />
           </div>
-          <div>
-            <div style={{ fontSize: "9.5px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Avg MTTR</div>
-            <div style={{ fontSize: "15px", fontWeight: 800, color: "#0f172a" }}>
-              {analytics.mttr_minutes ? `${analytics.mttr_minutes} min` : "14.2 min"}
-            </div>
+          <div style={{ fontSize: "28px", fontWeight: 800, color: "#16a34a", lineHeight: "1.1" }}>
+            {roiMetrics ? roiMetrics.total_cost_saved_formatted : "$360,500"}
           </div>
-        </div>
-
-        {/* SLA Compliance */}
-        <div style={{
-          background: "#ffffff",
-          border: "1px solid #e2e8f0",
-          borderRadius: "8px",
-          padding: "9px 12px",
-          display: "flex",
-          alignItems: "center",
-          gap: "9px",
-          boxShadow: "0 1px 2px rgba(0,0,0,0.03)"
-        }}>
-          <div style={{ background: "#f0fdf4", color: "#16a34a", padding: "7px", borderRadius: "6px", display: "flex" }}>
-            <SecurityIcon style={{ fontSize: "19px" }} />
-          </div>
-          <div>
-            <div style={{ fontSize: "9.5px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>SLA Compliance</div>
-            <div style={{ fontSize: "15px", fontWeight: 800, color: "#0f172a" }}>
-              {analytics.sla_compliance_rate ? `${analytics.sla_compliance_rate}%` : "99.8%"}
-            </div>
+          <div style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>
+            Based on $15k/hr outage prevention
           </div>
         </div>
       </div>
 
-      {/* -------------------------------------------------------------
-          ROW 3.5: TOP RECURRING PROBLEM & FINANCIAL ROI BANNER (NEXUS v2)
-          ------------------------------------------------------------- */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "1.1fr 1fr",
-        gap: "8px",
-        marginBottom: "8px"
-      }}>
-        {/* Top Recurring Problem Card */}
-        <div style={{
-          background: "#ffffff",
-          border: "1px solid #e2e8f0",
-          borderLeft: "4px solid #6366f1",
-          borderRadius: "8px",
-          padding: "10px 14px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          boxShadow: "0 1px 2px rgba(0,0,0,0.03)"
-        }}>
-          <div>
-            <div style={{ fontSize: "9.5px", fontWeight: 700, color: "#6366f1", textTransform: "uppercase", letterSpacing: "0.06em", display: "flex", alignItems: "center", gap: "4px" }}>
-              <HubIcon style={{ fontSize: "13px" }} /> Top Systemic Recurring Problem
-            </div>
-            <div style={{ fontSize: "13px", fontWeight: 800, color: "#0f172a", marginTop: "2px" }}>
-              {topProblem ? topProblem.title : "Claims DB Connection Pool Exhaustion"}
-            </div>
-            <div style={{ fontSize: "10.5px", color: "#64748b", marginTop: "1px" }}>
-              Occurred <strong>{topProblem ? topProblem.occurrence_count : 8}x this month</strong> • Est. exposure: <strong style={{ color: "#dc2626" }}>₹19.2L ($24k)</strong>
-            </div>
-          </div>
-          <button
-            onClick={() => navigate("/problems")}
-            style={{
-              background: "#0f172a", color: "#ffffff", border: "none", borderRadius: "4px",
-              padding: "6px 10px", fontSize: "11px", fontWeight: 600, cursor: "pointer",
-              display: "flex", alignItems: "center", gap: "4px"
-            }}
-          >
-            Problem Hub <ArrowForwardIcon style={{ fontSize: "12px" }} />
-          </button>
-        </div>
-
-        {/* Financial Downtime Cost Savings Card */}
-        <div style={{
-          background: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)",
-          border: "1px solid #334155",
-          borderRadius: "8px",
-          padding: "10px 14px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          color: "#ffffff"
-        }}>
-          <div>
-            <div style={{ fontSize: "9.5px", fontWeight: 700, color: "#38bdf8", textTransform: "uppercase", letterSpacing: "0.06em", display: "flex", alignItems: "center", gap: "4px" }}>
-              <AttachMoneyIcon style={{ fontSize: "13px" }} /> Downtime Financial Savings (ROI)
-            </div>
-            <div style={{ fontSize: "16px", fontWeight: 800, color: "#f8fafc", marginTop: "2px" }}>
-              {roiMetrics ? roiMetrics.total_cost_saved_formatted : "$360,500"} Saved
-            </div>
-            <div style={{ fontSize: "10px", color: "#94a3b8", marginTop: "1px" }}>
-              MTTR compressed <strong>45.0m ➔ 3.8m ({roiMetrics ? roiMetrics.mttr_reduction_pct : 91.6}% faster)</strong> • $15k/hr model
-            </div>
-          </div>
-          <div style={{
-            background: "rgba(16, 185, 129, 0.15)", border: "1px solid #10b981", borderRadius: "6px",
-            padding: "4px 8px", fontSize: "10.5px", fontWeight: 700, color: "#10b981", textAlign: "right"
-          }}>
-            91.6% FASTER
-          </div>
-        </div>
-      </div>
-
-
-
-      {/* -------------------------------------------------------------
-          ROW 4: THE 3-STAGE OPERATIONAL PIPELINE FLOW TRACKER
-          ------------------------------------------------------------- */}
+      {/* ----------------- 3-STAGE LIFECYCLE PIPELINE ----------------- */}
       <div style={{
         background: "#ffffff",
         border: "1px solid #e2e8f0",
-        borderRadius: "10px",
-        padding: "10px 14px",
-        marginBottom: "8px",
+        borderRadius: "8px",
+        padding: "16px 20px",
+        marginBottom: "24px",
         boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
       }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <span style={{ fontSize: "11px", fontWeight: 800, color: "#0f172a", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-              End-to-End Operational Lifecycle Pipeline
-            </span>
-            <span style={{ fontSize: "10px", color: "#64748b" }}>
-              • Click any stage to navigate directly to its dedicated workspace
-            </span>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+          <div>
+            <div style={{ fontSize: "13px", fontWeight: 800, color: "#0f172a", letterSpacing: "0.04em" }}>
+              END-TO-END OPERATIONAL LIFECYCLE
+            </div>
+            <div style={{ fontSize: "11px", color: "#64748b", marginTop: "2px" }}>
+              Real-time progression from synthetic detection to AI root cause analysis and PagerDuty escalation.
+            </div>
           </div>
           <span style={{
-            fontSize: "9.5px",
-            fontWeight: 800,
-            padding: "2px 7px",
+            fontSize: "10px",
+            fontWeight: 700,
+            padding: "3px 8px",
             borderRadius: "4px",
             background: isOutage ? "#fee2e2" : "#dcfce7",
             color: isOutage ? "#dc2626" : "#16a34a"
           }}>
-            {isOutage ? "ACTIVE INCIDENT PIPELINE" : "HEALTHY BASELINE PIPELINE"}
+            {isOutage ? "ACTIVE OUTAGE WORKFLOW" : "PIPELINE STANDBY"}
           </span>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px" }}>
-          {/* STAGE 1: DYNATRACE APM */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "14px" }}>
+          {/* Stage 1 */}
           <div
             onClick={() => navigate("/monitoring")}
             style={{
               border: `1px solid ${isOutage ? "#fed7aa" : "#e2e8f0"}`,
               background: isOutage ? "#fff7ed" : "#f8fafc",
               borderRadius: "8px",
-              padding: "10px 12px",
+              padding: "14px",
               cursor: "pointer",
               transition: "all 0.15s ease",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
-              minHeight: "102px"
+              minHeight: "110px"
             }}
-            className="hover-card"
           >
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                  <LanguageIcon style={{ color: "#0284c7", fontSize: "17px" }} />
-                  <span style={{ fontSize: "11.5px", fontWeight: 800, color: "#0f172a" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <LanguageIcon style={{ color: "#0284c7", fontSize: "18px" }} />
+                  <span style={{ fontSize: "12px", fontWeight: 800, color: "#0f172a" }}>
                     Stage 1: Dynatrace APM
                   </span>
                 </div>
                 <span style={{
-                  fontSize: "8.5px",
-                  fontWeight: 800,
-                  padding: "1px 5px",
-                  borderRadius: "3px",
+                  fontSize: "9px",
+                  fontWeight: 700,
+                  padding: "2px 6px",
+                  borderRadius: "4px",
                   background: isOutage ? "#ffedd5" : "#f0fdf4",
                   color: isOutage ? "#c2410c" : "#16a34a"
                 }}>
-                  {isOutage ? "ANOMALY DETECTED" : "ALL SYSTEMS OK"}
+                  {isOutage ? "ANOMALY DETECTED" : "HEALTHY"}
                 </span>
               </div>
-              <div style={{ fontSize: "10.5px", color: "#475569", marginTop: "3px" }}>
-                Synthetic probe: <strong>{isOutage ? "HTTP 500 Error (5,240ms)" : "HTTP 200 OK (48ms)"}</strong>
+              <div style={{ fontSize: "11px", color: "#475569" }}>
+                Synthetic Probe: <strong>{isOutage ? "HTTP 500 (5,240ms)" : "HTTP 200 (48ms)"}</strong>
               </div>
-              <div style={{ fontSize: "9.5px", color: "#64748b", marginTop: "1px" }}>
-                OneAgent monitoring {services.length} active microservices & Davis AI root cause feed.
+              <div style={{ fontSize: "10px", color: "#64748b", marginTop: "2px" }}>
+                OneAgent monitoring 4 microservices.
               </div>
             </div>
-
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginTop: "6px",
-              paddingTop: "5px",
-              borderTop: "1px solid rgba(0,0,0,0.06)",
-              fontSize: "10px",
-              fontWeight: 700,
-              color: "#0284c7"
-            }}>
-              <span>Open Dynatrace Telemetry</span>
-              <ArrowForwardIcon style={{ fontSize: "13px" }} />
+            <div style={{ fontSize: "10px", fontWeight: 700, color: "#0284c7", display: "flex", alignItems: "center", gap: "4px", marginTop: "8px" }}>
+              <span>View APM Telemetry</span>
+              <ArrowForwardIcon style={{ fontSize: "12px" }} />
             </div>
           </div>
 
-          {/* STAGE 2: INCIDENT MANAGEMENT */}
+          {/* Stage 2 */}
           <div
             onClick={() => navigate("/incidents")}
             style={{
-              border: `1px solid ${activeIncidents.length > 0 ? "#cbd5e1" : "#e2e8f0"}`,
+              border: `1px solid ${activeIncidents.length > 0 ? "#d8b4fe" : "#e2e8f0"}`,
               background: activeIncidents.length > 0 ? "#faf5ff" : "#f8fafc",
               borderRadius: "8px",
-              padding: "10px 12px",
+              padding: "14px",
               cursor: "pointer",
               transition: "all 0.15s ease",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
-              boxShadow: activeIncidents.length > 0 ? "0 0 0 2px rgba(147, 51, 234, 0.2)" : "none",
-              minHeight: "102px"
+              minHeight: "110px"
             }}
-            className="hover-card"
           >
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                  <PsychologyIcon style={{ color: "#9333ea", fontSize: "17px" }} />
-                  <span style={{ fontSize: "11.5px", fontWeight: 800, color: "#0f172a" }}>
-                    Stage 2: Incident Management
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <PsychologyIcon style={{ color: "#9333ea", fontSize: "18px" }} />
+                  <span style={{ fontSize: "12px", fontWeight: 800, color: "#0f172a" }}>
+                    Stage 2: Gemini AI Triage
                   </span>
                 </div>
                 <span style={{
-                  fontSize: "8.5px",
-                  fontWeight: 800,
-                  padding: "1px 5px",
-                  borderRadius: "3px",
+                  fontSize: "9px",
+                  fontWeight: 700,
+                  padding: "2px 6px",
+                  borderRadius: "4px",
                   background: activeIncidents.length > 0 ? "#f3e8ff" : "#f1f5f9",
                   color: activeIncidents.length > 0 ? "#7e22ce" : "#64748b"
                 }}>
-                  {activeIncidents.length > 0 ? "WAR ROOM ACTIVE" : "0 OPEN INCIDENTS"}
+                  {activeIncidents.length > 0 ? "WAR ROOM ENGAGED" : "STANDBY"}
                 </span>
               </div>
-              <div style={{ fontSize: "10.5px", color: "#475569", marginTop: "3px" }}>
-                Gemini AI RCA: <strong>{activeIncidents.length > 0 ? "DB pool exhaustion (94% conf.)" : "Diagnostic engine standby"}</strong>
+              <div style={{ fontSize: "11px", color: "#475569" }}>
+                Root Cause: <strong>{activeIncidents.length > 0 ? "DB Pool Saturation (94% conf.)" : "Diagnostic AI Ready"}</strong>
               </div>
-              <div style={{ fontSize: "9.5px", color: "#64748b", marginTop: "1px" }}>
-                Interactive Gemini SRE Copilot & 1-click remediation runbooks.
+              <div style={{ fontSize: "10px", color: "#64748b", marginTop: "2px" }}>
+                Presidio PII sanitized & automated video bridge.
               </div>
             </div>
-
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginTop: "6px",
-              paddingTop: "5px",
-              borderTop: "1px solid rgba(0,0,0,0.06)",
-              fontSize: "10px",
-              fontWeight: 700,
-              color: "#9333ea"
-            }}>
-              <span>Open Incident War Room</span>
-              <ArrowForwardIcon style={{ fontSize: "13px" }} />
+            <div style={{ fontSize: "10px", fontWeight: 700, color: "#9333ea", display: "flex", alignItems: "center", gap: "4px", marginTop: "8px" }}>
+              <span>Open War Room & Runbooks</span>
+              <ArrowForwardIcon style={{ fontSize: "12px" }} />
             </div>
           </div>
 
-          {/* STAGE 3: INCIDENT RESPONSE (PAGERDUTY) */}
+          {/* Stage 3 */}
           <div
             onClick={() => navigate("/incident-response")}
             style={{
               border: `1px solid ${isOutage ? "#fed7aa" : "#e2e8f0"}`,
               background: isOutage ? "#fff7ed" : "#f8fafc",
               borderRadius: "8px",
-              padding: "10px 12px",
+              padding: "14px",
               cursor: "pointer",
               transition: "all 0.15s ease",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
-              minHeight: "102px"
+              minHeight: "110px"
             }}
-            className="hover-card"
           >
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                  <NotificationsActiveIcon style={{ color: "#ea580c", fontSize: "17px" }} />
-                  <span style={{ fontSize: "11.5px", fontWeight: 800, color: "#0f172a" }}>
-                    Stage 3: Incident Response
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <NotificationsActiveIcon style={{ color: "#ea580c", fontSize: "18px" }} />
+                  <span style={{ fontSize: "12px", fontWeight: 800, color: "#0f172a" }}>
+                    Stage 3: PagerDuty On-Call
                   </span>
                 </div>
                 <span style={{
-                  fontSize: "8.5px",
-                  fontWeight: 800,
-                  padding: "1px 5px",
-                  borderRadius: "3px",
+                  fontSize: "9px",
+                  fontWeight: 700,
+                  padding: "2px 6px",
+                  borderRadius: "4px",
                   background: isOutage ? "#ffedd5" : "#f0fdf4",
                   color: isOutage ? "#c2410c" : "#16a34a"
                 }}>
-                  {isOutage ? "RESPONDER PAGED" : "ON-CALL STANDBY"}
+                  {isOutage ? "RESPONDER PAGED" : "ON-CALL READY"}
                 </span>
               </div>
-              <div style={{ fontSize: "10.5px", color: "#475569", marginTop: "3px" }}>
+              <div style={{ fontSize: "11px", color: "#475569" }}>
                 Primary: <strong>Rugved Mhatre (Core SRE Lead)</strong>
               </div>
-              <div style={{ fontSize: "9.5px", color: isOutage ? "#c2410c" : "#64748b", marginTop: "2px", fontWeight: isOutage ? 600 : 400 }}>
-                {activeIncidents.length > 0
-                  ? `PagerDuty Alert Dispatched • Dedup: ${(activeIncidents[0].pagerduty_id || "nexus-incident").slice(0, 24)}`
-                  : "Escalation ladder synced • On-call rotation ready"}
+              <div style={{ fontSize: "10px", color: "#64748b", marginTop: "2px" }}>
+                Auto-escalation matrix & incident sync.
               </div>
             </div>
-
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginTop: "6px",
-              paddingTop: "5px",
-              borderTop: "1px solid rgba(0,0,0,0.06)",
-              fontSize: "10px",
-              fontWeight: 700,
-              color: "#ea580c"
-            }}>
-              <span>View On-Call & Escalation</span>
-              <ArrowForwardIcon style={{ fontSize: "13px" }} />
+            <div style={{ fontSize: "10px", fontWeight: 700, color: "#ea580c", display: "flex", alignItems: "center", gap: "4px", marginTop: "8px" }}>
+              <span>View On-Call Schedule</span>
+              <ArrowForwardIcon style={{ fontSize: "12px" }} />
             </div>
           </div>
         </div>
       </div>
 
-      {/* -------------------------------------------------------------
-          ROW 5: CORE MICROSERVICES MATRIX (LEFT) & RECENT ACTIVITY (RIGHT)
-          ------------------------------------------------------------- */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "1.2fr 1fr",
-        gap: "10px",
-        flex: 1,
-        minHeight: "220px",
-        marginBottom: "8px"
-      }}>
-        {/* Left Panel: Core Microservices Matrix */}
+      {/* ----------------- LOWER SECTION: MICROSERVICES (LEFT) & RECENT INCIDENTS (RIGHT) ----------------- */}
+      <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "18px" }}>
+        {/* Core Microservices */}
         <div style={{
           background: "#ffffff",
           border: "1px solid #e2e8f0",
-          borderRadius: "10px",
-          padding: "12px 14px",
-          display: "flex",
-          flexDirection: "column",
+          borderRadius: "8px",
+          padding: "18px 20px",
           boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
         }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <LayersIcon style={{ color: "#475569", fontSize: "16px" }} />
-              <span style={{ fontSize: "11px", fontWeight: 800, color: "#0f172a", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                Core Microservices Health Matrix
-              </span>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+            <div>
+              <div style={{ fontSize: "13px", fontWeight: 800, color: "#0f172a", letterSpacing: "0.04em" }}>
+                CORE MICROSERVICES TOPOLOGY
+              </div>
+              <div style={{ fontSize: "11px", color: "#64748b", marginTop: "2px" }}>
+                Live response latencies and target SLAs.
+              </div>
             </div>
             <button
               onClick={() => navigate("/monitoring")}
               className="btn-tactile btn-tactile-secondary"
-              style={{ padding: "2px 8px", fontSize: "10px" }}
+              style={{ padding: "4px 10px", fontSize: "11px" }}
             >
               Full APM Metrics ➔
             </button>
           </div>
 
-          <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", overflowY: "auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
             {services.map((s) => {
               const isCrit = s.status === "CRITICAL";
               const isDeg = s.status === "DEGRADED";
@@ -703,15 +502,15 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                   background: isCrit ? "#fff1f2" : isDeg ? "#fffbeb" : "#f8fafc",
                   border: `1px solid ${isCrit ? "#fecdd3" : isDeg ? "#fde68a" : "#e2e8f0"}`,
                   borderRadius: "8px",
-                  padding: "10px 12px",
+                  padding: "12px 14px",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between"
                 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
                     <div>
-                      <div style={{ fontSize: "12px", fontWeight: 700, color: "#0f172a", lineHeight: "1.2" }}>{s.name}</div>
-                      <div style={{ fontSize: "9.5px", color: "#64748b", marginTop: "2px" }}>Tier: {s.tier} • depends on {s.depends_on || "none"}</div>
+                      <div style={{ fontSize: "13px", fontWeight: 700, color: "#0f172a" }}>{s.name}</div>
+                      <div style={{ fontSize: "10px", color: "#64748b", marginTop: "2px" }}>Tier {s.tier} • {s.depends_on || "standalone"}</div>
                     </div>
                     <span style={{
                       fontSize: "9px",
@@ -725,9 +524,9 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                     </span>
                   </div>
 
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px", fontSize: "10px", color: "#475569" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#475569" }}>
                     <span>Latency: <strong>{isCrit ? "5,200ms" : isDeg ? "420ms" : "28ms"}</strong></span>
-                    <span>SLA: <strong>99.9% Target</strong></span>
+                    <span>SLA: <strong>99.9%</strong></span>
                   </div>
                 </div>
               );
@@ -735,34 +534,34 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           </div>
         </div>
 
-        {/* Right Panel: Incident Log & Operational Activity */}
+        {/* Recent Incidents Feed */}
         <div style={{
           background: "#ffffff",
           border: "1px solid #e2e8f0",
-          borderRadius: "10px",
-          padding: "12px 14px",
-          display: "flex",
-          flexDirection: "column",
+          borderRadius: "8px",
+          padding: "18px 20px",
           boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
         }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <NotificationsActiveIcon style={{ color: "#475569", fontSize: "16px" }} />
-              <span style={{ fontSize: "11px", fontWeight: 800, color: "#0f172a", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                Incident Lifecycle History
-              </span>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+            <div>
+              <div style={{ fontSize: "13px", fontWeight: 800, color: "#0f172a", letterSpacing: "0.04em" }}>
+                RECENT INCIDENT FEED
+              </div>
+              <div style={{ fontSize: "11px", color: "#64748b", marginTop: "2px" }}>
+                Active triage queue & historical postmortems.
+              </div>
             </div>
             <button
               onClick={() => navigate("/incidents")}
               className="btn-tactile btn-tactile-secondary"
-              style={{ padding: "2px 8px", fontSize: "10px" }}
+              style={{ padding: "4px 10px", fontSize: "11px" }}
             >
               All Incidents ({incidents.length}) ➔
             </button>
           </div>
 
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px", overflowY: "auto" }}>
-            {incidents.slice(0, 3).map((inc) => {
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {incidents.slice(0, 4).map((inc) => {
               const isResolved = inc.status === "RESOLVED";
               const isAck = inc.status === "ACKNOWLEDGED";
               return (
@@ -776,30 +575,30 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                     borderRight: "1px solid #e2e8f0",
                     borderBottom: "1px solid #e2e8f0",
                     borderRadius: "0 6px 6px 0",
-                    padding: "8px 12px",
+                    padding: "10px 14px",
                     cursor: "pointer",
-                    fontSize: "11px"
+                    transition: "all 0.1s"
                   }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                       <span style={{
-                        fontSize: "8.5px",
+                        fontSize: "9px",
                         fontWeight: 800,
-                        padding: "1px 5px",
+                        padding: "1px 6px",
                         borderRadius: "3px",
                         background: (inc.priority || "P1") === "P1" ? "#ef4444" : "#f59e0b",
                         color: "#ffffff"
                       }}>
                         {inc.priority || "P1"}
                       </span>
-                      <strong style={{ color: "#0f172a" }}>Incident #{inc.id}</strong>
-                      <span style={{ color: "#64748b", fontSize: "10px" }}>• {inc.primary_service_id}</span>
+                      <strong style={{ color: "#0f172a", fontSize: "12px" }}>Incident #{inc.id}</strong>
+                      <span style={{ color: "#64748b", fontSize: "11px" }}>• {inc.primary_service_id}</span>
                     </div>
                     <span style={{
-                      fontSize: "8.5px",
+                      fontSize: "9px",
                       fontWeight: 700,
-                      padding: "1px 5px",
+                      padding: "2px 6px",
                       borderRadius: "3px",
                       background: isResolved ? "#dcfce7" : isAck ? "#fef3c7" : "#fee2e2",
                       color: isResolved ? "#15803d" : isAck ? "#b45309" : "#b91c1c"
@@ -807,7 +606,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                       {inc.status}
                     </span>
                   </div>
-                  <div style={{ color: "#334155", marginTop: "3px", fontSize: "10px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  <div style={{ color: "#475569", marginTop: "4px", fontSize: "11px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                     {inc.summary}
                   </div>
                 </div>
