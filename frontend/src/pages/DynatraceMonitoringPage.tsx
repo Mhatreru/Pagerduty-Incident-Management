@@ -1,12 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { Service, RawEvent } from "../types";
 import { PageHeader } from "../components/PageHeader";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import LanguageIcon from "@mui/icons-material/Language";
-import StorageIcon from "@mui/icons-material/Storage";
 import SpeedIcon from "@mui/icons-material/Speed";
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import MemoryIcon from "@mui/icons-material/Memory";
+import HubIcon from "@mui/icons-material/Hub";
 
 interface DynatraceMonitoringPageProps {
   services: Service[];
@@ -22,384 +22,404 @@ export const DynatraceMonitoringPage: React.FC<DynatraceMonitoringPageProps> = (
   onRoleChange
 }) => {
   const isOutage = services.some(s => s.status === "CRITICAL" || s.status === "DEGRADED");
-  const criticalService = services.find(s => s.status === "CRITICAL");
   const syntheticLatency = isOutage ? 5240 : 357;
+  const [filterSeverity, setFilterSeverity] = useState<string>("ALL");
+  const [executingProbe, setExecutingProbe] = useState(false);
+  const [probeSuccessMessage, setProbeSuccessMessage] = useState<string | null>(null);
+
+  const handleRunProbe = () => {
+    setExecutingProbe(true);
+    setProbeSuccessMessage(null);
+    setTimeout(() => {
+      setExecutingProbe(false);
+      setProbeSuccessMessage("Probe executed successfully: HTTP 200 OK (342ms) from AWS us-east-1");
+      setTimeout(() => setProbeSuccessMessage(null), 4000);
+    }, 1200);
+  };
+
+  const filteredAlerts = rawAlerts.filter(a => {
+    if (filterSeverity === "ALL") return true;
+    return a.severity === filterSeverity;
+  });
 
   return (
-    <div style={{ padding: "0 4px", fontFamily: "Inter, sans-serif", maxHeight: "100vh", overflow: "hidden" }}>
+    <div style={{
+      padding: "20px 24px",
+      maxWidth: "1500px",
+      margin: "0 auto",
+      fontFamily: "Inter, sans-serif",
+      color: "#0f172a",
+      boxSizing: "border-box"
+    }}>
       <PageHeader
-        title="Dynatrace APM & Synthetic Website Monitoring"
-        subtitle="CONTINUOUS END-USER SYNTHETIC HEALTH • APM TRANSACTION FLOW • DAVIS AI ANOMALY DETECTION"
+        title="Dynatrace APM & Synthetic Monitoring"
+        subtitle="Continuous end-user synthetic availability, OneAgent distributed tracing, and Davis AI anomaly detection."
         currentRole={currentRole}
         onRoleChange={onRoleChange}
+        badge="ONEAGENT LIVE"
       />
 
-      {/* Main 3-Column Layout - Viewport Fit (No Scroll) */}
+      {/* 4 Top APM Metric KPI Cards */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: "1.05fr 1.25fr 1.1fr",
-        gap: "14px",
-        height: "calc(100vh - 130px)",
-        marginTop: "10px"
+        gridTemplateColumns: "repeat(4, 1fr)",
+        gap: "16px",
+        marginBottom: "24px"
       }}>
-        {/* COLUMN 1: DYNATRACE SYNTHETIC MONITOR */}
+        {/* Synthetic Health */}
         <div style={{
           background: "#ffffff",
           border: "1px solid #e2e8f0",
-          borderRadius: "10px",
-          padding: "14px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-          overflowY: "auto"
+          borderRadius: "8px",
+          padding: "16px 18px",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
         }}>
-          {/* Section Header */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9", paddingBottom: "8px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <LanguageIcon style={{ color: "#0284c7", fontSize: "18px" }} />
-              <span style={{ fontSize: "12px", fontWeight: 700, color: "#0f172a" }}>Dynatrace Synthetic Monitor</span>
-            </div>
-            <span style={{
-              fontSize: "10px",
-              fontWeight: 700,
-              padding: "2px 8px",
-              borderRadius: "9999px",
-              background: isOutage ? "#fee2e2" : "#dcfce7",
-              color: isOutage ? "#b91c1c" : "#15803d",
-              display: "flex",
-              alignItems: "center",
-              gap: "4px"
-            }}>
-              <span className={isOutage ? "beacon-critical" : "beacon-live"} />
-              {isOutage ? "PROBE FAILING" : "ONLINE (100%)"}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+            <span style={{ fontSize: "10px", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              SYNTHETIC MONITORING
             </span>
+            <LanguageIcon style={{ fontSize: "18px", color: isOutage ? "#dc2626" : "#0284c7" }} />
           </div>
+          <div style={{ fontSize: "28px", fontWeight: 800, color: isOutage ? "#dc2626" : "#0f172a", lineHeight: "1.1" }}>
+            {isOutage ? "0% (Failing)" : "100% Online"}
+          </div>
+          <div style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>
+            Latency: <strong>{syntheticLatency}ms</strong> • AWS us-east-1
+          </div>
+        </div>
 
-          {/* Dynatrace Monitor Identity Card (From Live Dynatrace Console) */}
+        {/* APM OneAgent Coverage */}
+        <div style={{
+          background: "#ffffff",
+          border: "1px solid #e2e8f0",
+          borderRadius: "8px",
+          padding: "16px 18px",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+            <span style={{ fontSize: "10px", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              ONEAGENT APM COVERAGE
+            </span>
+            <MemoryIcon style={{ fontSize: "18px", color: "#16a34a" }} />
+          </div>
+          <div style={{ fontSize: "28px", fontWeight: 800, color: "#0f172a", lineHeight: "1.1" }}>
+            {services.length}/{services.length} Active
+          </div>
+          <div style={{ fontSize: "11px", color: "#16a34a", marginTop: "4px", fontWeight: 600 }}>
+            100% Microservices Instrumented
+          </div>
+        </div>
+
+        {/* Ingestion & Error Rate */}
+        <div style={{
+          background: "#ffffff",
+          border: "1px solid #e2e8f0",
+          borderRadius: "8px",
+          padding: "16px 18px",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+            <span style={{ fontSize: "10px", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              TRANSACTION FLOW
+            </span>
+            <SpeedIcon style={{ fontSize: "18px", color: "#8b5cf6" }} />
+          </div>
+          <div style={{ fontSize: "28px", fontWeight: 800, color: "#0f172a", lineHeight: "1.1" }}>
+            1,240 req/min
+          </div>
+          <div style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>
+            Error Rate: <strong>{isOutage ? "14.2%" : "0.01%"}</strong>
+          </div>
+        </div>
+
+        {/* Davis AI Anomaly Engine */}
+        <div style={{
+          background: "#ffffff",
+          border: "1px solid #e2e8f0",
+          borderRadius: "8px",
+          padding: "16px 18px",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+            <span style={{ fontSize: "10px", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              DAVIS AI PROBLEM ENGINE
+            </span>
+            <HubIcon style={{ fontSize: "18px", color: isOutage ? "#dc2626" : "#10b981" }} />
+          </div>
+          <div style={{ fontSize: "28px", fontWeight: 800, color: isOutage ? "#dc2626" : "#16a34a", lineHeight: "1.1" }}>
+            {isOutage ? "1 Problem" : "0 Problems"}
+          </div>
+          <div style={{ fontSize: "11px", color: isOutage ? "#dc2626" : "#16a34a", marginTop: "4px", fontWeight: 600 }}>
+            {isOutage ? "Root Cause: claims-database" : "Topological Baseline Clean"}
+          </div>
+        </div>
+      </div>
+
+      {/* Main 2-Column Responsive Layout */}
+      <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: "20px", alignItems: "start" }}>
+        {/* Left Column: Synthetic End-User Journey + OneAgent Services */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          {/* Synthetic Monitor Card */}
           <div style={{
-            background: "#0f172a", borderRadius: "8px", padding: "12px", color: "#f8fafc",
-            border: "1px solid #334155", display: "flex", flexDirection: "column", gap: "6px"
+            background: "#ffffff",
+            border: "1px solid #e2e8f0",
+            borderRadius: "8px",
+            padding: "20px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
           }}>
-            <div style={{ fontSize: "9px", color: "#94a3b8", display: "flex", alignItems: "center", gap: "4px" }}>
-              <span>Synthetic monitors</span>
-              <span>&gt;</span>
-              <strong style={{ color: "#38bdf8" }}>NEXUS POC - Claims Portal</strong>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <LanguageIcon style={{ color: "#0284c7", fontSize: "20px" }} />
+                <div>
+                  <div style={{ fontSize: "14px", fontWeight: 800, color: "#0f172a" }}>Dynatrace Synthetic Monitor</div>
+                  <div style={{ fontSize: "11px", color: "#64748b" }}>Automated browser-click probe executed every 60s</div>
+                </div>
+              </div>
+              <span style={{
+                fontSize: "11px",
+                fontWeight: 700,
+                padding: "3px 10px",
+                borderRadius: "16px",
+                background: isOutage ? "#fee2e2" : "#dcfce7",
+                color: isOutage ? "#b91c1c" : "#15803d",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "5px"
+              }}>
+                <span className={isOutage ? "beacon-critical" : "beacon-live"} />
+                {isOutage ? "PROBE FAILING (HTTP 500)" : "ONLINE (100% HEALTHY)"}
+              </span>
             </div>
 
-            <div style={{ fontSize: "13px", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.01em" }}>
-              NEXUS POC - Claims Portal
+            {/* Dark Terminal / Identity Preview */}
+            <div style={{
+              background: "#0f172a",
+              borderRadius: "8px",
+              padding: "16px",
+              color: "#f8fafc",
+              border: "1px solid #334155",
+              marginBottom: "16px"
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                <span style={{ fontSize: "11px", color: "#94a3b8" }}>
+                  Synthetic Monitor Target: <strong style={{ color: "#38bdf8" }}>NEXUS POC - Claims Portal</strong>
+                </span>
+                <span style={{ fontSize: "10px", color: "#64748b" }}>ID: HTTP_MONITOR-06513F5EB8018508</span>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+                <span style={{ fontSize: "16px", fontWeight: 800, color: "#ffffff" }}>Farmers Intelligent Quoting Hub</span>
+                <a
+                  href="https://intelligent-quote-engine.replit.app/"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: "#38bdf8", display: "inline-flex", alignItems: "center", gap: "2px", fontSize: "11px", textDecoration: "none" }}
+                >
+                  <OpenInNewIcon style={{ fontSize: "14px" }} />
+                </a>
+              </div>
+
+              {/* Probe Stages Bar */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px" }}>
+                <div style={{ background: "#1e293b", padding: "8px 10px", borderRadius: "6px" }}>
+                  <div style={{ fontSize: "9px", color: "#94a3b8" }}>DNS LOOKUP</div>
+                  <div style={{ fontSize: "13px", fontWeight: 700, color: "#f8fafc" }}>12ms</div>
+                </div>
+                <div style={{ background: "#1e293b", padding: "8px 10px", borderRadius: "6px" }}>
+                  <div style={{ fontSize: "9px", color: "#94a3b8" }}>TCP CONNECT</div>
+                  <div style={{ fontSize: "13px", fontWeight: 700, color: "#f8fafc" }}>28ms</div>
+                </div>
+                <div style={{ background: "#1e293b", padding: "8px 10px", borderRadius: "6px" }}>
+                  <div style={{ fontSize: "9px", color: "#94a3b8" }}>SSL / TLS</div>
+                  <div style={{ fontSize: "13px", fontWeight: 700, color: "#f8fafc" }}>44ms</div>
+                </div>
+                <div style={{ background: "#1e293b", padding: "8px 10px", borderRadius: "6px" }}>
+                  <div style={{ fontSize: "9px", color: "#94a3b8" }}>TOTAL TIME</div>
+                  <div style={{ fontSize: "13px", fontWeight: 700, color: isOutage ? "#f87171" : "#4ade80" }}>
+                    {syntheticLatency}ms
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div style={{ fontSize: "11px", marginTop: "1px", marginBottom: "2px" }}>
-              <span style={{ color: "#94a3b8" }}>(</span>
+            {probeSuccessMessage && (
+              <div style={{
+                background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#166534",
+                borderRadius: "6px", padding: "8px 12px", fontSize: "11px", fontWeight: 600,
+                marginBottom: "14px"
+              }}>
+                ✓ {probeSuccessMessage}
+              </div>
+            )}
+
+            {/* Actions Toolbar */}
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+              <button
+                onClick={handleRunProbe}
+                disabled={executingProbe}
+                className="btn-tactile btn-tactile-primary"
+                style={{ padding: "8px 14px", fontSize: "11px", display: "flex", alignItems: "center", gap: "6px" }}
+              >
+                <PlayArrowIcon style={{ fontSize: "15px" }} />
+                <span>{executingProbe ? "Executing Synthetic Probe..." : "Run On-Demand Synthetic Execution"}</span>
+              </button>
+
               <a
                 href="https://intelligent-quote-engine.replit.app/"
                 target="_blank"
                 rel="noreferrer"
-                style={{
-                  color: "#38bdf8",
-                  textDecoration: "underline",
-                  fontWeight: 600,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "3px"
-                }}
+                className="btn-tactile btn-tactile-secondary"
+                style={{ padding: "8px 14px", fontSize: "11px", display: "flex", alignItems: "center", gap: "6px", textDecoration: "none" }}
               >
-                Farmers Intelligent Quoting Hub <OpenInNewIcon style={{ fontSize: "11px" }} />
-              </a>
-              <span style={{ color: "#94a3b8" }}>)</span>
-            </div>
-
-            <div style={{ fontSize: "10px", color: "#94a3b8", lineHeight: "1.4" }}>
-              HTTP monitor configured to run every 1 minute from N. Virginia
-            </div>
-
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "4px", paddingTop: "6px", borderTop: "1px solid #1e293b", fontSize: "10px" }}>
-              <span style={{ color: "#64748b", fontFamily: "monospace" }}>ID: HTTP_MONITOR-06513F5EBB018508</span>
-              <a
-                href="https://mgd16706.apps.dynatrace.com/ui/apps/dynatrace.synthetic/monitor/HTTP_MONITOR-06513F5EBB018508?tf=now-2h%3Bnow"
-                target="_blank"
-                rel="noreferrer"
-                style={{
-                  color: "#38bdf8", textDecoration: "none", display: "flex", alignItems: "center", gap: "3px",
-                  fontWeight: 600, fontSize: "10px"
-                }}
-              >
-                Open in Dynatrace <OpenInNewIcon style={{ fontSize: "11px" }} />
+                <OpenInNewIcon style={{ fontSize: "14px" }} />
+                <span>Open Quoting Engine</span>
               </a>
             </div>
           </div>
 
-          {/* Dynatrace 4 Core Metric Tiles (Exact Layout as Dynatrace Console) */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-            {/* Tile 1: Last status */}
-            <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "8px 10px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <CheckCircleIcon style={{ fontSize: "15px", color: isOutage ? "#ef4444" : "#10b981" }} />
-                <span style={{ fontSize: "10px", color: "#64748b" }}>Last status:</span>
-                <strong style={{ fontSize: "11px", color: isOutage ? "#dc2626" : "#0f172a" }}>
-                  {isOutage ? "Failure" : "Success"}
-                </strong>
-              </div>
-              <div style={{ fontSize: "9px", color: isOutage ? "#b91c1c" : "#16a34a", marginTop: "4px" }}>
-                {isOutage ? "HTTP 500 Threshold Trip" : "HTTP 200 Validated"}
-              </div>
-            </div>
-
-            {/* Tile 2: Availability */}
-            <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "8px 10px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: isOutage ? "#ef4444" : "#10b981" }} />
-                <span style={{ fontSize: "10px", color: "#64748b" }}>Availability:</span>
-                <strong style={{ fontSize: "12px", color: isOutage ? "#dc2626" : "#0f172a" }}>
-                  {isOutage ? "0%" : "100%"}
-                </strong>
-              </div>
-              <div style={{ fontSize: "9px", color: "#64748b", marginTop: "4px" }}>
-                Last 2 hours window
-              </div>
-            </div>
-
-            {/* Tile 3: Locations */}
-            <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "8px 10px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#3b82f6" }} />
-                <span style={{ fontSize: "10px", color: "#64748b" }}>Locations:</span>
-                <strong style={{ fontSize: "12px", color: "#0f172a" }}>1</strong>
-              </div>
-              <div style={{ fontSize: "9px", color: "#64748b", marginTop: "4px" }}>
-                N. Virginia (AWS us-east-1)
-              </div>
-            </div>
-
-            {/* Tile 4: Performance */}
-            <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "8px 10px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <SpeedIcon style={{ fontSize: "14px", color: isOutage ? "#ef4444" : "#0284c7" }} />
-                <span style={{ fontSize: "10px", color: "#64748b" }}>Performance:</span>
-                <strong style={{ fontSize: "12px", color: isOutage ? "#dc2626" : "#0f172a" }}>
-                  {syntheticLatency} ms
-                </strong>
-              </div>
-              <div style={{ fontSize: "9px", color: isOutage ? "#b91c1c" : "#16a34a", marginTop: "4px" }}>
-                {isOutage ? "▲ Degraded Response" : "● Nominal Baseline"}
-              </div>
-            </div>
-          </div>
-
-          {/* Dynatrace Action Chips */}
-          <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-            <span style={{ fontSize: "9px", padding: "3px 8px", background: "#f1f5f9", borderRadius: "4px", color: "#334155", fontWeight: 600 }}>
-              📊 Analyze executions
-            </span>
-            <span style={{ fontSize: "9px", padding: "3px 8px", background: "#f1f5f9", borderRadius: "4px", color: "#334155", fontWeight: 600 }}>
-              ⚡ On-demand execution
-            </span>
-            <span style={{ fontSize: "9px", padding: "3px 8px", background: "#f1f5f9", borderRadius: "4px", color: "#334155", fontWeight: 600 }}>
-              🔍 View traces
-            </span>
-          </div>
-
-          {/* Execution Telemetry Breakdown */}
+          {/* OneAgent Microservices Grid */}
           <div style={{
-            flex: 1, background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px",
-            padding: "10px", display: "flex", flexDirection: "column", gap: "6px"
+            background: "#ffffff",
+            border: "1px solid #e2e8f0",
+            borderRadius: "8px",
+            padding: "20px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
           }}>
-            <div style={{ fontSize: "11px", fontWeight: 700, color: "#334155", display: "flex", justifyContent: "space-between" }}>
-              <span>Synthetic Execution Telemetry</span>
-              <span style={{ fontSize: "9px", color: "#64748b", fontWeight: 500 }}>Probe: 1 min cadence</span>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+              <div>
+                <div style={{ fontSize: "14px", fontWeight: 800, color: "#0f172a" }}>Dynatrace OneAgent APM Services</div>
+                <div style={{ fontSize: "11px", color: "#64748b" }}>Real-time process response times, thread pools, and health metrics</div>
+              </div>
+              <span style={{ fontSize: "11px", fontWeight: 700, color: "#16a34a", background: "#f0fdf4", padding: "3px 8px", borderRadius: "6px", border: "1px solid #bbf7d0" }}>
+                4/4 Healthy Topology
+              </span>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", padding: "4px 6px", background: "#ffffff", borderRadius: "4px", border: "1px solid #edf2f7" }}>
-              <span style={{ color: "#64748b" }}>Vantage Location</span>
-              <strong style={{ color: "#0f172a" }}>N. Virginia (AWS us-east-1)</strong>
-            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+              {services.map((s) => {
+                const isCrit = s.status === "CRITICAL";
+                const isDeg = s.status === "DEGRADED";
+                return (
+                  <div
+                    key={s.id}
+                    style={{
+                      background: isCrit ? "#fff1f2" : isDeg ? "#fffbeb" : "#f8fafc",
+                      border: `1px solid ${isCrit ? "#fecdd3" : isDeg ? "#fde68a" : "#e2e8f0"}`,
+                      borderRadius: "8px",
+                      padding: "14px",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between"
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px" }}>
+                      <div>
+                        <div style={{ fontSize: "13px", fontWeight: 700, color: "#0f172a" }}>{s.name}</div>
+                        <div style={{ fontSize: "10px", color: "#64748b", marginTop: "2px" }}>
+                          Tier {s.tier} • depends on: <code>{s.depends_on || "None"}</code>
+                        </div>
+                      </div>
+                      <span style={{
+                        fontSize: "9px",
+                        fontWeight: 800,
+                        padding: "2px 6px",
+                        borderRadius: "4px",
+                        background: isCrit ? "#fee2e2" : isDeg ? "#fef3c7" : "#dcfce7",
+                        color: isCrit ? "#b91c1c" : isDeg ? "#b45309" : "#15803d"
+                      }}>
+                        {s.status}
+                      </span>
+                    </div>
 
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", padding: "4px 6px", background: "#ffffff", borderRadius: "4px", border: "1px solid #edf2f7" }}>
-              <span style={{ color: "#64748b" }}>Target Application</span>
-              <code style={{ fontSize: "9px", color: "#0284c7" }}>claims-portal (http://localhost:5173)</code>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", padding: "4px 6px", background: "#ffffff", borderRadius: "4px", border: "1px solid #edf2f7" }}>
-              <span style={{ color: "#64748b" }}>DNS Lookup + TCP Handshake</span>
-              <strong style={{ color: "#16a34a" }}>38 ms</strong>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", padding: "4px 6px", background: "#ffffff", borderRadius: "4px", border: "1px solid #edf2f7" }}>
-              <span style={{ color: "#64748b" }}>Server Response Time (TTFB)</span>
-              <strong style={{ color: isOutage ? "#dc2626" : "#16a34a" }}>
-                {isOutage ? "5,172 ms" : "319 ms"}
-              </strong>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", padding: "4px 6px", background: "#ffffff", borderRadius: "4px", border: "1px solid #edf2f7" }}>
-              <span style={{ color: "#64748b" }}>SSL / TLS Security</span>
-              <span style={{ color: "#16a34a", fontWeight: 600 }}>TLS 1.3 Active (Valid)</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#475569", paddingTop: "8px", borderTop: "1px solid rgba(0,0,0,0.05)" }}>
+                      <span>Latency: <strong>{isCrit ? "5,200ms" : isDeg ? "420ms" : "28ms"}</strong></span>
+                      <span>Host: <strong>AWS us-east-1</strong></span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
 
-        {/* COLUMN 2: APM MICROSERVICES HEALTH */}
+        {/* Right Column: Davis AI Ingestion Feed */}
         <div style={{
           background: "#ffffff",
           border: "1px solid #e2e8f0",
-          borderRadius: "10px",
-          padding: "16px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "12px",
+          borderRadius: "8px",
+          padding: "20px",
           boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
         }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9", paddingBottom: "10px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <StorageIcon style={{ color: "#6366f1", fontSize: "20px" }} />
-              <span style={{ fontSize: "13px", fontWeight: 700, color: "#0f172a" }}>Dynatrace OneAgent APM Services</span>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+            <div>
+              <div style={{ fontSize: "14px", fontWeight: 800, color: "#0f172a" }}>Davis AI Problem & Alert Stream</div>
+              <div style={{ fontSize: "11px", color: "#64748b" }}>Live ingestion telemetry stream ({rawAlerts.length} events)</div>
             </div>
-            <span style={{ fontSize: "11px", color: "#64748b" }}>
-              {services.filter(s => s.status === "HEALTHY").length}/{services.length} Healthy
-            </span>
+            <div style={{ display: "flex", gap: "4px" }}>
+              {["ALL", "CRITICAL", "ERROR", "WARNING"].map((sev) => (
+                <button
+                  key={sev}
+                  onClick={() => setFilterSeverity(sev)}
+                  style={{
+                    border: "none",
+                    borderRadius: "4px",
+                    padding: "3px 8px",
+                    fontSize: "10px",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    background: filterSeverity === sev ? "#0f172a" : "#f1f5f9",
+                    color: filterSeverity === sev ? "#ffffff" : "#475569"
+                  }}
+                >
+                  {sev}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px", flex: 1, overflowY: "auto" }}>
-            {services.map((svc) => {
-              const isCrit = svc.status === "CRITICAL";
-              const isDeg = svc.status === "DEGRADED";
-              const statusColor = isCrit ? "#ef4444" : isDeg ? "#f59e0b" : "#10b981";
-              const statusBg = isCrit ? "#fee2e2" : isDeg ? "#fef3c7" : "#dcfce7";
-
+          {/* Clean Scrollable Feed */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "680px", overflowY: "auto" }}>
+            {filteredAlerts.slice(0, 15).map((a, idx) => {
+              const isCrit = a.severity === "CRITICAL";
+              const isErr = a.severity === "ERROR";
               return (
-                <div key={svc.id} style={{
-                  background: isCrit ? "#fff1f2" : isDeg ? "#fffbeb" : "#f8fafc",
-                  border: `1px solid ${isCrit ? "#fecdd3" : isDeg ? "#fde68a" : "#e2e8f0"}`,
-                  borderRadius: "8px",
-                  padding: "12px",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "6px"
-                }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div
+                  key={idx}
+                  style={{
+                    background: isCrit ? "#fff1f2" : isErr ? "#fffbeb" : "#f8fafc",
+                    borderLeft: `4px solid ${isCrit ? "#ef4444" : isErr ? "#f59e0b" : "#3b82f6"}`,
+                    borderTop: "1px solid #e2e8f0",
+                    borderRight: "1px solid #e2e8f0",
+                    borderBottom: "1px solid #e2e8f0",
+                    borderRadius: "0 6px 6px 0",
+                    padding: "10px 12px",
+                    fontSize: "11px"
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <code style={{ fontSize: "12px", fontWeight: 700, color: "#0f172a" }}>{svc.name}</code>
-                      <span style={{ fontSize: "9px", background: "#e2e8f0", color: "#475569", padding: "1px 5px", borderRadius: "4px" }}>
-                        {svc.tier}
+                      <span style={{
+                        fontSize: "9px",
+                        fontWeight: 800,
+                        padding: "1px 5px",
+                        borderRadius: "3px",
+                        background: isCrit ? "#fee2e2" : isErr ? "#fef3c7" : "#dbeafe",
+                        color: isCrit ? "#991b1b" : isErr ? "#92400e" : "#1e40af"
+                      }}>
+                        {a.severity}
                       </span>
+                      <strong style={{ color: "#0f172a" }}>{a.service_id}</strong>
                     </div>
-                    <span style={{
-                      fontSize: "9px",
-                      fontWeight: 800,
-                      padding: "2px 8px",
-                      borderRadius: "6px",
-                      background: statusBg,
-                      color: statusColor
-                    }}>
-                      {svc.status}
+                    <span style={{ fontSize: "10px", color: "#64748b" }}>
+                      {new Date(a.timestamp).toLocaleTimeString()}
                     </span>
                   </div>
-
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "#64748b" }}>
-                    <span>Service ID: <strong>{svc.id}</strong></span>
-                    <span>Depends on: <strong>{svc.depends_on || "None (Root DB)"}</strong></span>
-                  </div>
-
-                  <div style={{ display: "flex", gap: "14px", fontSize: "10px", color: "#475569", marginTop: "2px", borderTop: "1px dashed #e2e8f0", paddingTop: "4px" }}>
-                    <span>Response: <strong style={{ color: isCrit ? "#dc2626" : "#0f172a" }}>{isCrit ? "4,820ms" : isDeg ? "1,240ms" : "42ms"}</strong></span>
-                    <span>Error Rate: <strong style={{ color: isCrit ? "#dc2626" : "#0f172a" }}>{isCrit ? "22.4%" : isDeg ? "8.1%" : "0.01%"}</strong></span>
-                    <span>Host: <strong>AWS us-east-1</strong></span>
+                  <div style={{ color: "#334155", lineHeight: 1.4 }}>
+                    {a.message}
                   </div>
                 </div>
               );
             })}
-          </div>
-        </div>
-
-        {/* COLUMN 3: DAVIS AI ANOMALIES & INCIDENT ALERTS */}
-        <div style={{
-          background: "#ffffff",
-          border: "1px solid #e2e8f0",
-          borderRadius: "10px",
-          padding: "16px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "12px",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
-        }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9", paddingBottom: "10px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <AutoAwesomeIcon style={{ color: "#a855f7", fontSize: "20px" }} />
-              <span style={{ fontSize: "13px", fontWeight: 700, color: "#0f172a" }}>Davis AI Problem Stream</span>
-            </div>
-            <span style={{
-              fontSize: "10px",
-              fontWeight: 700,
-              padding: "2px 6px",
-              borderRadius: "4px",
-              background: isOutage ? "#fee2e2" : "#f1f5f9",
-              color: isOutage ? "#b91c1c" : "#64748b"
-            }}>
-              {isOutage ? "1 ACTIVE PROBLEM" : "0 PROBLEMS"}
-            </span>
-          </div>
-
-          {/* Davis Problem Card */}
-          {isOutage ? (
-            <div style={{
-              background: "#faf5ff",
-              border: "1px solid #e9d5ff",
-              borderRadius: "8px",
-              padding: "12px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "6px"
-            }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", fontWeight: 700, color: "#6b21a8" }}>
-                <span>Problem P-24091</span>
-                <span style={{ color: "#ef4444" }}>CRITICAL</span>
-              </div>
-              <div style={{ fontSize: "11px", color: "#3b0764", fontWeight: 600 }}>
-                Response time degradation & connection pool exhaustion on {criticalService?.id || "claims-database"}
-              </div>
-              <div style={{ fontSize: "10px", color: "#6b21a8", marginTop: "4px" }}>
-                Root cause verified by Dynatrace Smartscape dependency graph. Correlated into NEXUS incident management.
-              </div>
-            </div>
-          ) : (
-            <div style={{
-              background: "#f0fdf4",
-              border: "1px solid #bbf7d0",
-              borderRadius: "8px",
-              padding: "12px",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px"
-            }}>
-              <CheckCircleIcon style={{ color: "#16a34a", fontSize: "18px" }} />
-              <span style={{ fontSize: "11px", color: "#15803d", fontWeight: 600 }}>
-                Davis AI has verified all topological components are healthy.
-              </span>
-            </div>
-          )}
-
-          {/* Raw Dynatrace Ingest Events */}
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px", overflowY: "auto" }}>
-            <div style={{ fontSize: "11px", fontWeight: 700, color: "#334155", marginBottom: "2px" }}>
-              Recent Ingestion Telemetry Stream ({rawAlerts.length})
-            </div>
-            {rawAlerts.slice(0, 6).map((al, idx) => (
-              <div key={idx} style={{
-                background: "#f8fafc",
-                borderLeft: al.severity === "CRITICAL" ? "3px solid #ef4444" : "3px solid #f59e0b",
-                padding: "6px 8px",
-                borderRadius: "0 4px 4px 0",
-                fontSize: "10px"
-              }}>
-                <div style={{ display: "flex", justifyContent: "space-between", color: "#0f172a", fontWeight: 600 }}>
-                  <span>{al.source || "Dynatrace"} • {al.service_id}</span>
-                  <span style={{ color: al.severity === "CRITICAL" ? "#ef4444" : "#d97706", fontSize: "9px" }}>{al.severity}</span>
-                </div>
-                <div style={{ color: "#64748b", marginTop: "2px" }}>{al.message}</div>
-              </div>
-            ))}
           </div>
         </div>
       </div>

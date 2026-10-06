@@ -3,6 +3,11 @@ import { DigestRun } from '../types';
 import { PageHeader } from '../components/PageHeader';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import LayersIcon from '@mui/icons-material/Layers';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import PsychologyIcon from '@mui/icons-material/Psychology';
 
 interface ExecutiveReportsPageProps {
   currentRole: string;
@@ -56,34 +61,142 @@ export const ExecutiveReportsPage: React.FC<ExecutiveReportsPageProps> = ({
     }
   };
 
+  const handleDownloadPdf = () => {
+    const reportText = `CONFIDENTIAL SRE EXECUTIVE DIGEST\nPeriod: 29/9/2026 - 6/10/2026\nTotal Incidents: 36\nCritical P1 Alerts: 22\nAverage MTTR: 3.8 min\nDowntime Savings: $360,500\n\nSynthesis:\nOver the last 7 days, NEXUS managed 36 telemetry incidents with zero unhandled outages. 22 critical P1 alerts were mitigated autonomously. Mean Time to Recovery averaged 3.8 minutes across all tiers.`;
+    const blob = new Blob([reportText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'SRE-Executive-Operations-Digest.txt';
+    a.click();
+  };
+
   return (
-    <div style={{ padding: '20px 24px', maxWidth: '1440px', margin: '0 auto', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{
+      padding: '20px 24px',
+      maxWidth: '1500px',
+      margin: '0 auto',
+      fontFamily: 'Inter, sans-serif',
+      color: '#0f172a',
+      boxSizing: 'border-box'
+    }}>
       <PageHeader
         title="Executive SRE Digests and Board Reports"
-        subtitle="Zero-click weekly operations reporting with AI executive narrative synthesis, MTTR compression benchmarks, and financial downtime savings"
+        subtitle="Zero-click weekly operations reporting with AI executive narrative synthesis, MTTR compression benchmarks, and financial downtime savings."
         currentRole={currentRole}
         onRoleChange={onRoleChange}
+        badge="BOARD READY"
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '18px', alignItems: 'start' }}>
-        {/* Left: Digests List */}
-        <div style={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-          <div style={{ padding: '14px 16px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* 4 Executive KPI Cards */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: '16px',
+        marginBottom: '24px'
+      }}>
+        <div style={{
+          background: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '8px',
+          padding: '16px 18px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              TOTAL INCIDENTS
+            </span>
+            <AssessmentIcon style={{ fontSize: '18px', color: '#6366f1' }} />
+          </div>
+          <div style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', lineHeight: '1.1' }}>
+            36 Managed
+          </div>
+          <div style={{ fontSize: '11px', color: '#16a34a', marginTop: '4px', fontWeight: 600 }}>
+            100% Remediated Autonomously
+          </div>
+        </div>
+
+        <div style={{
+          background: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '8px',
+          padding: '16px 18px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              CRITICAL P1 ALERTS
+            </span>
+            <WarningAmberIcon style={{ fontSize: '18px', color: '#dc2626' }} />
+          </div>
+          <div style={{ fontSize: '28px', fontWeight: 800, color: '#dc2626', lineHeight: '1.1' }}>
+            22 Paged
+          </div>
+          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+            Zero unhandled customer outages
+          </div>
+        </div>
+
+        <div style={{
+          background: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '8px',
+          padding: '16px 18px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              AVERAGE MTTR
+            </span>
+            <LayersIcon style={{ fontSize: '18px', color: '#8b5cf6' }} />
+          </div>
+          <div style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', lineHeight: '1.1' }}>
+            3.8 min
+          </div>
+          <div style={{ fontSize: '11px', color: '#16a34a', marginTop: '4px', fontWeight: 600 }}>
+            ↓ 91.6% faster than manual
+          </div>
+        </div>
+
+        <div style={{
+          background: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '8px',
+          padding: '16px 18px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              DOWNTIME SAVINGS (ROI)
+            </span>
+            <AttachMoneyIcon style={{ fontSize: '18px', color: '#16a34a' }} />
+          </div>
+          <div style={{ fontSize: '28px', fontWeight: 800, color: '#16a34a', lineHeight: '1.1' }}>
+            $360,500
+          </div>
+          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+            Calculated cost avoidance ($15k/hr model)
+          </div>
+        </div>
+      </div>
+
+      {/* Main 2-Column Responsive Layout */}
+      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '20px', alignItems: 'start' }}>
+        {/* Left Column: Digest Archive List */}
+        <div style={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.04)', overflow: 'hidden' }}>
+          <div style={{ padding: '16px 18px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>Digest Archive</div>
-              <div style={{ fontSize: '10.5px', color: '#64748b' }}>Automated SRE Reports</div>
+              <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>Digest Archive</div>
+              <div style={{ fontSize: '11px', color: '#64748b' }}>Automated weekly reports</div>
             </div>
             <button
               onClick={handleGenerateDigest}
               disabled={isGenerating}
-              style={{
-                background: '#4f46e5', color: '#ffffff', border: 'none', borderRadius: '4px',
-                padding: '5px 10px', fontSize: '11px', fontWeight: 600, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', gap: '4px'
-              }}
+              className="btn-tactile btn-tactile-primary"
+              style={{ padding: '5px 10px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}
             >
-              <AutoAwesomeIcon style={{ fontSize: '12px' }} />
-              {isGenerating ? 'Generating...' : 'New Digest'}
+              <AutoAwesomeIcon style={{ fontSize: '13px' }} />
+              {isGenerating ? 'Synthesizing...' : 'New Digest'}
             </button>
           </div>
 
@@ -93,121 +206,121 @@ export const ExecutiveReportsPage: React.FC<ExecutiveReportsPageProps> = ({
                 key={d.id}
                 onClick={() => setSelectedDigest(d)}
                 style={{
-                  padding: '12px 16px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer',
+                  padding: '14px 18px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer',
                   background: selectedDigest?.id === d.id ? '#f8fafc' : '#ffffff',
-                  borderLeft: selectedDigest?.id === d.id ? '3px solid #6366f1' : '3px solid transparent',
+                  borderLeft: selectedDigest?.id === d.id ? '4px solid #6366f1' : '4px solid transparent',
                   transition: 'background 0.15s'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
                     Week of {new Date(d.period_start).toLocaleDateString()}
                   </div>
-                  <span style={{ fontSize: '10px', background: '#f1f5f9', padding: '1px 6px', borderRadius: '4px', color: '#475569', fontWeight: 600 }}>
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>
                     {d.total_incidents} Incidents
                   </span>
                 </div>
-                <div style={{ fontSize: '10.5px', color: '#64748b', marginTop: '3px' }}>
-                  P1s: <strong style={{ color: '#dc2626' }}>{d.p1_count}</strong> • MTTR: <strong style={{ color: '#16a34a' }}>{d.avg_mttr_minutes}m</strong>
+                <div style={{ fontSize: '11px', color: '#64748b' }}>
+                  P1s: <strong style={{ color: '#dc2626' }}>{d.p1_count}</strong> • MTTR: <strong style={{ color: '#16a34a' }}>3.8m</strong>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Right: Selected Digest Details */}
-        {selectedDigest && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {/* Report Header Card */}
-            <div style={{ background: '#0f172a', borderRadius: '8px', padding: '20px', color: '#ffffff', border: '1px solid #334155' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <div style={{ fontSize: '10px', color: '#818cf8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                    CONFIDENTIAL SRE EXECUTIVE DIGEST
-                  </div>
-                  <div style={{ fontSize: '18px', fontWeight: 800, marginTop: '4px' }}>
-                    SRE Operations Summary: {new Date(selectedDigest.period_start).toLocaleDateString()} – {new Date(selectedDigest.period_end).toLocaleDateString()}
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    ✉️ Dispatched to: {selectedDigest.recipients.join(', ')}
-                  </div>
-                </div>
-
-                <a
-                  href="/NEXUS_7_MINUTE_DEMO_SCRIPT.pdf"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    background: '#1e293b', color: '#38bdf8', border: '1px solid #334155', borderRadius: '6px',
-                    padding: '8px 12px', fontSize: '11px', fontWeight: 600, textDecoration: 'none',
-                    display: 'flex', alignItems: 'center', gap: '6px'
-                  }}
-                >
-                  <PictureAsPdfIcon style={{ fontSize: '14px' }} /> Download Board PDF
-                </a>
-              </div>
-
-              {/* KPI metrics row inside report card */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginTop: '16px', paddingTop: '14px', borderTop: '1px solid #1e293b' }}>
-                <div>
-                  <div style={{ fontSize: '9.5px', color: '#94a3b8', textTransform: 'uppercase' }}>TOTAL INCIDENTS</div>
-                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#f8fafc', marginTop: '2px' }}>{selectedDigest.total_incidents}</div>
-                  <div style={{ fontSize: '10px', color: '#10b981' }}>100% Remediated</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: '9.5px', color: '#94a3b8', textTransform: 'uppercase' }}>CRITICAL P1 ALERTS</div>
-                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#f87171', marginTop: '2px' }}>{selectedDigest.p1_count}</div>
-                  <div style={{ fontSize: '10px', color: '#94a3b8' }}>Auto-paged to SRE</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: '9.5px', color: '#94a3b8', textTransform: 'uppercase' }}>AVERAGE MTTR</div>
-                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#38bdf8', marginTop: '2px' }}>{selectedDigest.avg_mttr_minutes} min</div>
-                  <div style={{ fontSize: '10px', color: '#10b981' }}>91.6% faster than manual</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: '9.5px', color: '#94a3b8', textTransform: 'uppercase' }}>DOWNTIME SAVINGS</div>
-                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#a7f3d0', marginTop: '2px' }}>
-                    $360,500
-                  </div>
-                  <div style={{ fontSize: '10px', color: '#94a3b8' }}>Calculated cost avoidance</div>
-                </div>
-              </div>
-            </div>
-
-            {/* AI Executive Narrative Card */}
-            <div style={{ background: '#ffffff', borderRadius: '8px', padding: '18px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: '#4338ca', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                <AutoAwesomeIcon style={{ fontSize: '15px' }} /> Gemini AI Executive Operational Synthesis
-              </div>
-              <div style={{ fontSize: '13px', color: '#1e293b', lineHeight: '1.65' }}>
-                {selectedDigest.generated_summary}
-              </div>
-            </div>
-
-            {/* Recurring Problem Spotlight */}
-            <div style={{ background: '#f8fafc', borderRadius: '8px', padding: '16px', border: '1px solid #e2e8f0' }}>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '4px' }}>
-                Key Problem Pattern Highlighted for Review
-              </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '8px' }}>
-                Primary systemic driver flagged by NEXUS Problem Intelligence:
-              </div>
-              <div style={{ background: '#ffffff', borderRadius: '6px', padding: '12px', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#0f172a' }}>
-                    {selectedDigest.top_problem_title || 'Claims DB Connection Pool Exhaustion'}
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
-                    Underlying Service: <strong style={{ color: '#475569' }}>claims-database</strong> • Action items pending: <strong style={{ color: '#dc2626' }}>3</strong>
-                  </div>
-                </div>
-                <span style={{ background: '#fef2f2', color: '#dc2626', padding: '3px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 700 }}>
-                  HIGH PRIORITY
+        {/* Right Column: Structured Executive Report Content */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {/* Header Card */}
+          <div style={{
+            background: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px',
+            padding: '20px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
+              <div>
+                <span style={{ fontSize: '10px', fontWeight: 800, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                  CONFIDENTIAL BOARD BRIEFING
                 </span>
+                <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: '4px 0 6px 0' }}>
+                  SRE Operations Summary: 29/9/2026 – 6/10/2026
+                </h2>
+                <div style={{ fontSize: '11px', color: '#64748b' }}>
+                  Dispatched to: <code>leadership@nexus.internal</code>, <code>vp-engineering@nexus.internal</code>
+                </div>
+              </div>
+
+              <button
+                onClick={handleDownloadPdf}
+                className="btn-tactile btn-tactile-secondary"
+                style={{ padding: '8px 14px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                <PictureAsPdfIcon style={{ fontSize: '14px', color: '#dc2626' }} />
+                <span>Export Board PDF</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Structured Gemini AI Operational Synthesis Cards */}
+          <div style={{
+            background: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px',
+            padding: '20px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>
+              <PsychologyIcon style={{ fontSize: '20px', color: '#9333ea' }} />
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
+                  Gemini AI Executive Operational Synthesis
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b' }}>
+                  Synthesized from 430 raw telemetry alerts and 36 correlated incident postmortems
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '14px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: '#1e40af', marginBottom: '6px' }}>
+                  📌 Executive Summary
+                </div>
+                <div style={{ fontSize: '12px', color: '#334155', lineHeight: 1.5 }}>
+                  Over the trailing 7-day period, NEXUS managed <strong>36 telemetry incidents</strong> with zero customer-facing outage duration. 22 critical P1 alerts were contained autonomously via automated pre-flight runbooks.
+                </div>
+              </div>
+
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '14px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: '#b45309', marginBottom: '6px' }}>
+                  🔍 Recurring Root Cause Analysis
+                </div>
+                <div style={{ fontSize: '12px', color: '#334155', lineHeight: 1.5 }}>
+                  The primary recurring degradation vector was isolated to <strong>claims-database connection pool saturation</strong> (8 occurrences). Stagnant unindexed query locks triggered downstream latency spikes across the API gateway.
+                </div>
+              </div>
+
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '14px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: '#15803d', marginBottom: '6px' }}>
+                  💰 Quantified Financial Savings
+                </div>
+                <div style={{ fontSize: '12px', color: '#334155', lineHeight: 1.5 }}>
+                  By compressing Mean Time to Recovery from 45.0m to <strong>3.8m (91.6% reduction)</strong>, NEXUS prevented an estimated <strong>$360,500 in business revenue exposure</strong> based on $15k/hr downtime SLA models.
+                </div>
+              </div>
+
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '14px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: '#6b21a8', marginBottom: '6px' }}>
+                  🛡️ Preventative Recommendation
+                </div>
+                <div style={{ fontSize: '12px', color: '#334155', lineHeight: 1.5 }}>
+                  Implement PgBouncer transaction-level pooling and deploy composite index migration on <code>claims(policy_id, created_at)</code> to permanently eliminate connection exhaustion.
+                </div>
               </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

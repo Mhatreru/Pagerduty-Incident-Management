@@ -1,9 +1,9 @@
 import React from "react";
 import { Incident } from "../types";
 import { PageHeader } from "../components/PageHeader";
-import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import PersonIcon from "@mui/icons-material/Person";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
+import ScheduleIcon from "@mui/icons-material/Schedule";
 
 interface PagerDutyResponsePageProps {
   incidents: Incident[];
@@ -26,313 +26,343 @@ export const PagerDutyResponsePage: React.FC<PagerDutyResponsePageProps> = ({
 
   return (
     <div style={{
-      padding: "0 4px 14px 4px",
+      padding: "20px 24px",
+      maxWidth: "1500px",
+      margin: "0 auto",
       fontFamily: "Inter, sans-serif",
-      maxHeight: "calc(100vh - 32px)",
-      overflow: "hidden",
-      display: "flex",
-      flexDirection: "column"
+      color: "#0f172a",
+      boxSizing: "border-box"
     }}>
       <PageHeader
         title="PagerDuty Incident Response & On-Call Dispatch"
-        subtitle="AUTOMATED ON-CALL ESCALATIONS • BI-DIRECTIONAL PAGERDUTY SYNC • SERVICENOW TICKET MANAGEMENT"
+        subtitle="Automated on-call notification cascades, multi-tier escalation policies, and bi-directional ServiceNow CMDB synchronization."
         currentRole={currentRole}
         onRoleChange={onRoleChange}
+        badge="PAGERDUTY V2 SYNC"
       />
 
-      {/* Main 3-Column Layout - Viewport Fit */}
+      {/* 3 Top Response Readiness Cards */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: "1fr 1.35fr 1fr",
-        gap: "12px",
-        height: "calc(100vh - 120px)",
-        marginTop: "8px",
-        boxSizing: "border-box"
+        gridTemplateColumns: "repeat(3, 1fr)",
+        gap: "16px",
+        marginBottom: "24px"
       }}>
-        {/* COLUMN 1: ON-CALL ROSTER & ESCALATION POLICIES */}
+        {/* On-Call Lead */}
         <div style={{
           background: "#ffffff",
           border: "1px solid #e2e8f0",
-          borderRadius: "10px",
-          padding: "14px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
+          borderRadius: "8px",
+          padding: "16px 18px",
           boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
         }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9", paddingBottom: "8px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <PersonIcon style={{ color: "#059669", fontSize: "18px" }} />
-              <span style={{ fontSize: "12px", fontWeight: 700, color: "#0f172a" }}>On-Call Schedule & Escalation</span>
-            </div>
-            <span style={{ fontSize: "9px", background: "#f0fdf4", color: "#16a34a", padding: "2px 6px", borderRadius: "8px", fontWeight: 700 }}>
-              ACTIVE
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+            <span style={{ fontSize: "10px", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              PRIMARY ON-CALL RESPONDER
             </span>
+            <PersonIcon style={{ fontSize: "18px", color: "#10b981" }} />
           </div>
-
-          {/* Primary Responder Card */}
-          <div style={{ background: "#0f172a", borderRadius: "8px", padding: "12px", color: "#f8fafc" }}>
-            <div style={{ fontSize: "9.5px", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-              Tier 1 Primary Responder
-            </div>
-            <div style={{ fontSize: "14px", fontWeight: 800, color: "#f8fafc", marginTop: "3px" }}>
-              Rugved Mhatre (Core SRE Lead)
-            </div>
-            <div style={{ fontSize: "10.5px", color: "#38bdf8", marginTop: "2px" }}>
-              PagerDuty App & SMS Active • Shift ends in 4h 12m
-            </div>
-            <div style={{ display: "flex", gap: "8px", marginTop: "8px", fontSize: "9.5px", color: "#cbd5e1" }}>
-              <span>MTTA Target: <strong>&lt; 5m</strong></span>
-              <span>•</span>
-              <span>Escalation Rule: <strong>15m timeout</strong></span>
-            </div>
+          <div style={{ fontSize: "20px", fontWeight: 800, color: "#0f172a", lineHeight: "1.2" }}>
+            Rugved Mhatre
           </div>
-
-          {/* Escalation Ladder */}
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px" }}>
-            <div style={{ fontSize: "10.5px", fontWeight: 700, color: "#334155" }}>
-              Escalation Policy Path
-            </div>
-
-            {[
-              { level: "Level 1", name: "Rugved Mhatre", role: "Primary On-Call SRE", status: "Notified (0m)", color: "#10b981" },
-              { level: "Level 2", name: "Samruddhi Kakade", role: "Data Platform Tech Lead", status: "Standby (+15m)", color: "#64748b" },
-              { level: "Level 3", name: "Aarzoo Sharma", role: "Incident Commander", status: "Standby (+30m)", color: "#64748b" }
-            ].map((esc, idx) => (
-              <div key={idx} style={{
-                background: "#f8fafc",
-                border: "1px solid #e2e8f0",
-                borderRadius: "6px",
-                padding: "7px 10px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center"
-              }}>
-                <div>
-                  <div style={{ fontSize: "11px", fontWeight: 700, color: "#0f172a" }}>
-                    <span style={{ color: "#6366f1" }}>{esc.level}:</span> {esc.name}
-                  </div>
-                  <div style={{ fontSize: "9.5px", color: "#64748b" }}>{esc.role}</div>
-                </div>
-                <span style={{ fontSize: "9.5px", fontWeight: 600, color: esc.color }}>{esc.status}</span>
-              </div>
-            ))}
+          <div style={{ fontSize: "11px", color: "#16a34a", marginTop: "4px", fontWeight: 600 }}>
+            Core SRE Lead • Shift ends in 4h 12m
           </div>
         </div>
 
-        {/* COLUMN 2: ACTIVE PAGERDUTY INCIDENTS */}
+        {/* Escalation Policy */}
         <div style={{
           background: "#ffffff",
           border: "1px solid #e2e8f0",
-          borderRadius: "10px",
-          padding: "14px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-          overflow: "hidden"
+          borderRadius: "8px",
+          padding: "16px 18px",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
         }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9", paddingBottom: "8px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <NotificationsActiveIcon style={{ color: "#ef4444", fontSize: "18px" }} />
-              <span style={{ fontSize: "12px", fontWeight: 700, color: "#0f172a" }}>PagerDuty Incident Queue</span>
-            </div>
-            <span style={{
-              fontSize: "9.5px",
-              fontWeight: 700,
-              padding: "2px 7px",
-              borderRadius: "8px",
-              background: activeIncidents.length > 0 ? "#fee2e2" : "#dcfce7",
-              color: activeIncidents.length > 0 ? "#b91c1c" : "#15803d"
-            }}>
-              {activeIncidents.length} OPEN
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+            <span style={{ fontSize: "10px", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              ESCALATION SLA TARGETS
             </span>
+            <ScheduleIcon style={{ fontSize: "18px", color: "#6366f1" }} />
           </div>
-
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "8px",
-            flex: 1,
-            overflowY: "auto",
-            padding: "2px 4px 20px 2px",
-            boxSizing: "border-box"
-          }}>
-            {sortedIncidents.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "40px 10px", color: "#94a3b8", fontSize: "12px" }}>
-                No PagerDuty incidents found.
-              </div>
-            ) : (
-              sortedIncidents.map((inc) => {
-                const isTriggered = inc.status === "TRIGGERED";
-                const isAck = inc.status === "ACKNOWLEDGED";
-                const isResolved = inc.status === "RESOLVED";
-
-                return (
-                  <div key={inc.id} style={{
-                    background: isResolved ? "#f8fafc" : isAck ? "#fffbeb" : "#fff1f2",
-                    border: `1px solid ${isResolved ? "#e2e8f0" : isAck ? "#fde68a" : "#fecdd3"}`,
-                    borderRadius: "8px",
-                    padding: "10px 12px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "6px",
-                    boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-                    flexShrink: 0
-                  }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                        <span style={{
-                          background: "#0f172a", color: "#fff", fontSize: "8.5px", fontWeight: 700,
-                          padding: "1px 5px", borderRadius: "3px"
-                        }}>
-                          {inc.priority || "P1"}
-                        </span>
-                        <strong style={{ fontSize: "11.5px", color: "#0f172a" }}>#{inc.id}</strong>
-                        <span style={{ fontSize: "10px", color: "#475569" }}>• {inc.primary_service_id}</span>
-                      </div>
-                      <span style={{
-                        fontSize: "8.5px",
-                        fontWeight: 700,
-                        padding: "1px 5px",
-                        borderRadius: "3px",
-                        background: isResolved ? "#dcfce7" : isAck ? "#fef3c7" : "#fee2e2",
-                        color: isResolved ? "#15803d" : isAck ? "#b45309" : "#dc2626"
-                      }}>
-                        {inc.status}
-                      </span>
-                    </div>
-
-                    <div style={{ fontSize: "10.5px", color: "#334155", lineHeight: "1.3" }}>
-                      {inc.summary}
-                    </div>
-
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(0,0,0,0.06)", paddingTop: "5px" }}>
-                      <div style={{ fontSize: "9px", color: "#64748b" }}>
-                        Dedup Key: <code style={{ fontSize: "9px" }}>{(inc.pagerduty_id || "pd-dedup-default").slice(0, 24)}...</code>
-                      </div>
-
-                      {/* Quick PagerDuty Response Buttons */}
-                      <div style={{ display: "flex", gap: "6px" }}>
-                        {isTriggered && (
-                          <button
-                            disabled={isViewer}
-                            onClick={() => onAcknowledgeIncident(inc.id)}
-                            className="btn-tactile btn-tactile-warning"
-                            style={{ padding: "3px 8px", fontSize: "9.5px" }}
-                          >
-                            Acknowledge
-                          </button>
-                        )}
-                        {!isResolved && (
-                          <button
-                            disabled={isViewer}
-                            onClick={() => onResolveIncident(inc.id)}
-                            className="btn-tactile btn-tactile-success"
-                            style={{ padding: "3px 8px", fontSize: "9.5px" }}
-                          >
-                            Resolve
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            )}
+          <div style={{ fontSize: "20px", fontWeight: 800, color: "#0f172a", lineHeight: "1.2" }}>
+            MTTA &lt; 5m • MTTR &lt; 30m
+          </div>
+          <div style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>
+            3-Tier Escalation ladder: 0m ➔ 15m ➔ 30m
           </div>
         </div>
 
-        {/* COLUMN 3: SERVICENOW & WEBHOOK INTEGRATION SYNC */}
+        {/* ServiceNow Sync */}
         <div style={{
           background: "#ffffff",
           border: "1px solid #e2e8f0",
-          borderRadius: "10px",
-          padding: "14px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
+          borderRadius: "8px",
+          padding: "16px 18px",
           boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
         }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #f1f5f9", paddingBottom: "8px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <SyncAltIcon style={{ color: "#3b82f6", fontSize: "18px" }} />
-              <span style={{ fontSize: "12px", fontWeight: 700, color: "#0f172a" }}>Bi-Directional Sync & ServiceNow</span>
-            </div>
-            <span style={{ fontSize: "9px", background: "#eff6ff", color: "#1d4ed8", padding: "2px 6px", borderRadius: "8px", fontWeight: 700 }}>
-              SYNCED
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+            <span style={{ fontSize: "10px", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              ITSM & WEBHOOK INTEGRATION
             </span>
+            <SyncAltIcon style={{ fontSize: "18px", color: "#0284c7" }} />
           </div>
-
-          {/* ServiceNow ITSM Linkage */}
-          <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "10px" }}>
-            <div style={{ fontSize: "9.5px", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-              ServiceNow CMDB & ITSM Mapping
-            </div>
-            <div style={{ fontSize: "12px", fontWeight: 700, color: "#0f172a", marginTop: "3px" }}>
-              INC0089241 (P1 High Priority Ticket)
-            </div>
-            <div style={{ fontSize: "9.5px", color: "#64748b", marginTop: "2px" }}>
-              Assignment Group: Cloud Infrastructure Operations
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px", fontSize: "9.5px" }}>
-              <span>Sync State: <strong style={{ color: "#16a34a" }}>2-Way Active</strong></span>
-              <span>Last Heartbeat: <strong>4s ago</strong></span>
-            </div>
+          <div style={{ fontSize: "20px", fontWeight: 800, color: "#0284c7", lineHeight: "1.2" }}>
+            2-Way Active
           </div>
-
-          {/* Webhook Delivery Health */}
-          <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "10px" }}>
-            <div style={{ fontSize: "10.5px", fontWeight: 700, color: "#334155", marginBottom: "4px" }}>
-              PagerDuty Webhook Delivery Status
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "9.5px", color: "#475569" }}>
-              <span>Endpoint:</span>
-              <code>/api/webhooks/pagerduty</code>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "9.5px", color: "#475569", marginTop: "3px" }}>
-              <span>Delivery Status:</span>
-              <strong style={{ color: "#16a34a" }}>200 OK (0 retries)</strong>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "9.5px", color: "#475569", marginTop: "3px" }}>
-              <span>HMAC-SHA256:</span>
-              <strong style={{ color: "#16a34a" }}>Verified Signature</strong>
-            </div>
+          <div style={{ fontSize: "11px", color: "#16a34a", marginTop: "4px", fontWeight: 600 }}>
+            ServiceNow CMDB + PagerDuty v2 REST Synced
           </div>
+        </div>
+      </div>
 
-          {/* Operational Response Automation & SLA */}
+      {/* Main 2-Column Responsive Layout */}
+      <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1.4fr", gap: "20px", alignItems: "start" }}>
+        {/* Left Column: On-Call Schedule + ServiceNow Mapping */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          {/* On-Call Details Card */}
           <div style={{
-            background: "#f8fafc",
+            background: "#ffffff",
             border: "1px solid #e2e8f0",
             borderRadius: "8px",
-            padding: "10px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "5px"
+            padding: "20px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
           }}>
-            <div style={{ fontSize: "10.5px", fontWeight: 700, color: "#334155" }}>
-              Incident Response SLA & Automation
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+              <div>
+                <div style={{ fontSize: "14px", fontWeight: 800, color: "#0f172a" }}>On-Call Schedule & Escalation</div>
+                <div style={{ fontSize: "11px", color: "#64748b" }}>Live on-call rotation verified by PagerDuty API</div>
+              </div>
+              <span style={{ fontSize: "10px", background: "#f0fdf4", color: "#16a34a", padding: "3px 8px", borderRadius: "12px", fontWeight: 700, border: "1px solid #bbf7d0" }}>
+                ROTATION ACTIVE
+              </span>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "9.5px", color: "#475569" }}>
-              <span>Target MTTA (Ack):</span>
-              <strong style={{ color: "#0f172a" }}>&lt; 5.0 min</strong>
+
+            {/* Dark Responder Box */}
+            <div style={{
+              background: "#0f172a",
+              borderRadius: "8px",
+              padding: "16px",
+              color: "#f8fafc",
+              border: "1px solid #334155",
+              marginBottom: "16px"
+            }}>
+              <div style={{ fontSize: "10px", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Tier 1 Primary Responder
+              </div>
+              <div style={{ fontSize: "18px", fontWeight: 800, color: "#ffffff", marginTop: "4px" }}>
+                Rugved Mhatre
+              </div>
+              <div style={{ fontSize: "11px", color: "#38bdf8", marginTop: "2px" }}>
+                Core SRE Lead • Mobile Push, SMS, and Voice Call Dispatched
+              </div>
+              <div style={{ display: "flex", gap: "12px", marginTop: "10px", fontSize: "10px", color: "#cbd5e1", paddingTop: "8px", borderTop: "1px solid #334155" }}>
+                <span>MTTA Target: <strong>&lt; 5m</strong></span>
+                <span>•</span>
+                <span>Auto-Escalate: <strong>15m timeout</strong></span>
+              </div>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "9.5px", color: "#475569" }}>
-              <span>Target MTTR (Resolve):</span>
-              <strong style={{ color: "#0f172a" }}>&lt; 30.0 min</strong>
+
+            {/* Escalation Ladder */}
+            <div>
+              <div style={{ fontSize: "12px", fontWeight: 700, color: "#0f172a", marginBottom: "10px" }}>
+                Escalation Ladder Policy
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                {[
+                  { level: "Level 1", name: "Rugved Mhatre", role: "Primary On-Call SRE", status: "Notified (0m)", active: true },
+                  { level: "Level 2", name: "Samruddhi Kakade", role: "Data Platform Tech Lead", status: "Standby (+15m)", active: false },
+                  { level: "Level 3", name: "Aarzoo Sharma", role: "Incident Commander", status: "Standby (+30m)", active: false }
+                ].map((tier, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "10px 12px",
+                      borderRadius: "6px",
+                      background: tier.active ? "#eff6ff" : "#f8fafc",
+                      border: `1px solid ${tier.active ? "#bfdbfe" : "#e2e8f0"}`
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: "12px", fontWeight: 700, color: tier.active ? "#1e40af" : "#0f172a" }}>
+                        {tier.level}: {tier.name}
+                      </div>
+                      <div style={{ fontSize: "10px", color: "#64748b", marginTop: "1px" }}>{tier.role}</div>
+                    </div>
+                    <span style={{
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      padding: "2px 6px",
+                      borderRadius: "4px",
+                      background: tier.active ? "#dbeafe" : "#f1f5f9",
+                      color: tier.active ? "#1d4ed8" : "#64748b"
+                    }}>
+                      {tier.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "9.5px", color: "#475569" }}>
-              <span>Bi-Directional Sync:</span>
-              <strong style={{ color: "#16a34a" }}>Healthy (Every 15s)</strong>
+          </div>
+
+          {/* ServiceNow ITSM Mapping */}
+          <div style={{
+            background: "#ffffff",
+            border: "1px solid #e2e8f0",
+            borderRadius: "8px",
+            padding: "20px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+              <div>
+                <div style={{ fontSize: "14px", fontWeight: 800, color: "#0f172a" }}>ServiceNow CMDB & ITSM Mapping</div>
+                <div style={{ fontSize: "11px", color: "#64748b" }}>Bi-directional incident ticket bridge</div>
+              </div>
+              <span style={{ fontSize: "10px", fontWeight: 700, color: "#16a34a", background: "#f0fdf4", padding: "3px 8px", borderRadius: "6px", border: "1px solid #bbf7d0" }}>
+                SYNCED
+              </span>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "9.5px", color: "#475569" }}>
-              <span>Active Responder Mode:</span>
-              <strong style={{ color: "#6366f1" }}>Rugved Mhatre (Push / SMS)</strong>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "6px", padding: "12px" }}>
+                <div style={{ fontSize: "10px", color: "#64748b", textTransform: "uppercase", fontWeight: 700 }}>
+                  ServiceNow Ticket ID
+                </div>
+                <div style={{ fontSize: "15px", fontWeight: 800, color: "#0f172a", marginTop: "2px" }}>
+                  INC0089241 (P1 High Priority Ticket)
+                </div>
+                <div style={{ fontSize: "11px", color: "#475569", marginTop: "4px" }}>
+                  Assignment Group: <strong>Cloud Infrastructure Operations</strong> • Sync State: <strong style={{ color: "#16a34a" }}>2-Way Active</strong>
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "6px", padding: "10px" }}>
+                  <div style={{ fontSize: "10px", color: "#64748b" }}>WEBHOOK DELIVERY</div>
+                  <div style={{ fontSize: "13px", fontWeight: 700, color: "#16a34a", marginTop: "2px" }}>200 OK (0 retries)</div>
+                </div>
+                <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "6px", padding: "10px" }}>
+                  <div style={{ fontSize: "10px", color: "#64748b" }}>SECURITY HMAC</div>
+                  <div style={{ fontSize: "13px", fontWeight: 700, color: "#0f172a", marginTop: "2px" }}>Verified SHA-256</div>
+                </div>
+              </div>
             </div>
+          </div>
+        </div>
+
+        {/* Right Column: PagerDuty Incident Queue */}
+        <div style={{
+          background: "#ffffff",
+          border: "1px solid #e2e8f0",
+          borderRadius: "8px",
+          padding: "20px",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+            <div>
+              <div style={{ fontSize: "14px", fontWeight: 800, color: "#0f172a" }}>PagerDuty Incident Queue ({incidents.length})</div>
+              <div style={{ fontSize: "11px", color: "#64748b" }}>Live incident alerts synchronized via PagerDuty REST API</div>
+            </div>
+            <span style={{
+              fontSize: "10px",
+              fontWeight: 700,
+              padding: "3px 8px",
+              borderRadius: "12px",
+              background: activeIncidents.length > 0 ? "#fee2e2" : "#dcfce7",
+              color: activeIncidents.length > 0 ? "#dc2626" : "#16a34a"
+            }}>
+              {activeIncidents.length > 0 ? `${activeIncidents.length} OPEN ALERTS` : "0 OPEN ALERTS"}
+            </span>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "720px", overflowY: "auto" }}>
+            {sortedIncidents.slice(0, 15).map((inc) => {
+              const isResolved = inc.status === "RESOLVED";
+              const isAck = inc.status === "ACKNOWLEDGED";
+
+              return (
+                <div
+                  key={inc.id}
+                  style={{
+                    background: isResolved ? "#f8fafc" : "#fff1f2",
+                    borderLeft: `4px solid ${isResolved ? "#10b981" : isAck ? "#f59e0b" : "#ef4444"}`,
+                    borderTop: "1px solid #e2e8f0",
+                    borderRight: "1px solid #e2e8f0",
+                    borderBottom: "1px solid #e2e8f0",
+                    borderRadius: "0 6px 6px 0",
+                    padding: "12px 14px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px"
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <span style={{
+                        fontSize: "9px",
+                        fontWeight: 800,
+                        padding: "1px 6px",
+                        borderRadius: "3px",
+                        background: (inc.priority || "P1") === "P1" ? "#ef4444" : "#f59e0b",
+                        color: "#ffffff"
+                      }}>
+                        {inc.priority || "P1"}
+                      </span>
+                      <strong style={{ color: "#0f172a", fontSize: "13px" }}>#{inc.id}</strong>
+                      <span style={{ color: "#64748b", fontSize: "11px" }}>• {inc.primary_service_id}</span>
+                    </div>
+
+                    <span style={{
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      padding: "2px 8px",
+                      borderRadius: "10px",
+                      background: isResolved ? "#dcfce7" : isAck ? "#fef3c7" : "#fee2e2",
+                      color: isResolved ? "#15803d" : isAck ? "#b45309" : "#b91c1c"
+                    }}>
+                      {inc.status}
+                    </span>
+                  </div>
+
+                  <div style={{ fontSize: "12px", color: "#334155", fontWeight: 600 }}>
+                    {inc.summary}
+                  </div>
+
+                  <div style={{ fontSize: "10px", color: "#64748b" }}>
+                    Dedup Key: <code>{(inc.pagerduty_id || "nexus-claims-database").slice(0, 36)}...</code>
+                  </div>
+
+                  {!isResolved && (
+                    <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
+                      {!isAck && (
+                        <button
+                          disabled={isViewer}
+                          onClick={() => onAcknowledgeIncident(inc.id)}
+                          className="btn-tactile btn-tactile-warning"
+                          style={{ padding: "4px 10px", fontSize: "10px" }}
+                        >
+                          Acknowledge
+                        </button>
+                      )}
+                      <button
+                        disabled={isViewer}
+                        onClick={() => onResolveIncident(inc.id)}
+                        className="btn-tactile btn-tactile-success"
+                        style={{ padding: "4px 10px", fontSize: "10px" }}
+                      >
+                        Resolve
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
     </div>
   );
 };
-
