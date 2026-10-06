@@ -13,12 +13,12 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { path: '/', label: 'Overview', icon: DashboardIcon, exact: true },
-  { path: '/monitoring', label: 'Dynatrace APM', icon: SearchIcon },
-  { path: '/incidents', label: 'Incident Management', icon: NotificationsActiveIcon },
-  { path: '/problems', label: 'Problem Management', icon: HubIcon },
-  { path: '/incident-response', label: 'Incident Response', icon: CableIcon },
-  { path: '/reports', label: 'Executive Reports', icon: AssessmentIcon },
+  { path: '/', label: 'Executive Overview', icon: DashboardIcon, exact: true },
+  { path: '/monitoring', label: '1. Detect (Dynatrace)', icon: SearchIcon },
+  { path: '/incident-response', label: '2. Triage (PagerDuty)', icon: CableIcon },
+  { path: '/incidents', label: '3. War Room (AIOps)', icon: NotificationsActiveIcon },
+  { path: '/reports', label: '4. Postmortem & ROI', icon: AssessmentIcon },
+  { path: '/problems', label: 'Problem Knowledgebase', icon: HubIcon },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ openIncidentCount }) => {
@@ -77,10 +77,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ openIncidentCount }) => {
               <Icon style={{ fontSize: '16px', color: '#818cf8' }} />
               <span>{label}</span>
             </div>
-            {label.includes('Dynatrace') && (
+            {label.includes('1. Detect') && (
               <span className="beacon-live" title="APM & Synthetic Monitoring Active" />
             )}
-            {label.includes('Incident Management') && openIncidentCount && openIncidentCount > 0 ? (
+            {label.includes('War Room') && openIncidentCount && openIncidentCount > 0 ? (
               <span style={{
                 background: '#ef4444',
                 color: '#fff',

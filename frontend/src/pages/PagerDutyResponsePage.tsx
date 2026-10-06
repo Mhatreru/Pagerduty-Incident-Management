@@ -1,9 +1,13 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Incident } from "../types";
 import { PageHeader } from "../components/PageHeader";
+import { PathwayStepper } from "../components/PathwayStepper";
 import PersonIcon from "@mui/icons-material/Person";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import ScheduleIcon from "@mui/icons-material/Schedule";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 interface PagerDutyResponsePageProps {
   incidents: Incident[];
@@ -20,6 +24,7 @@ export const PagerDutyResponsePage: React.FC<PagerDutyResponsePageProps> = ({
   onAcknowledgeIncident,
   onResolveIncident
 }) => {
+  const navigate = useNavigate();
   const activeIncidents = incidents.filter(i => i.status !== "RESOLVED");
   const isViewer = currentRole === "VIEWER";
   const sortedIncidents = [...incidents].sort((a, b) => (a.status === "RESOLVED" ? 1 : 0) - (b.status === "RESOLVED" ? 1 : 0));
@@ -34,12 +39,79 @@ export const PagerDutyResponsePage: React.FC<PagerDutyResponsePageProps> = ({
       boxSizing: "border-box"
     }}>
       <PageHeader
-        title="PagerDuty Incident Response & On-Call Dispatch"
-        subtitle="Automated on-call notification cascades, multi-tier escalation policies, and bi-directional ServiceNow CMDB synchronization."
+        title="Step 2: On-Call Triage & Dispatch"
+        subtitle="PagerDuty automated escalation policies, active on-call responders, and primary incident dispatch."
         currentRole={currentRole}
         onRoleChange={onRoleChange}
-        badge="PAGERDUTY V2 SYNC"
+        badge="PAGERDUTY LIVE"
       />
+
+      {/* Guided Pathway Stepper */}
+      <PathwayStepper activeIncidentCount={activeIncidents.length} />
+
+      {/* Guided Navigation Bar */}
+      <div style={{
+        background: "#ffffff",
+        border: "1px solid #e2e8f0",
+        borderRadius: "8px",
+        padding: "12px 18px",
+        marginBottom: "20px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "16px"
+      }}>
+        <button
+          onClick={() => navigate("/monitoring")}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            background: "#f1f5f9",
+            color: "#334155",
+            border: "1px solid #cbd5e1",
+            borderRadius: "6px",
+            padding: "8px 14px",
+            fontSize: "12.5px",
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          <ArrowBackIcon style={{ fontSize: "16px" }} />
+          <span>Back: Step 1 Detection</span>
+        </button>
+
+        <div style={{ fontSize: "13px", color: "#64748b", textAlign: "center" }}>
+          {activeIncidents.length > 0 ? (
+            <span style={{ color: "#b91c1c", fontWeight: 700 }}>
+              ⚠ {activeIncidents.length} Incident(s) paged out. Proceed to War Room for AI Root Cause & Automated Runbooks.
+            </span>
+          ) : (
+            <span>All on-call schedules ready. Review escalation tiers or proceed to remediation tools.</span>
+          )}
+        </div>
+
+        <button
+          onClick={() => navigate("/incidents")}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            background: "#0f172a",
+            color: "#ffffff",
+            border: "none",
+            borderRadius: "6px",
+            padding: "8px 16px",
+            fontSize: "12.5px",
+            fontWeight: 700,
+            cursor: "pointer",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+          }}
+        >
+          <span>Next: Step 3 War Room</span>
+          <ArrowForwardIcon style={{ fontSize: "16px" }} />
+        </button>
+      </div>
 
       {/* 3 Top Response Readiness Cards */}
       <div style={{

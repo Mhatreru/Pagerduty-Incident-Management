@@ -65,7 +65,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
               textDecoration: 'none'
             })}
           >
-            Workspaces
+            Overview
           </NavLink>
           <NavLink
             to="/monitoring"
@@ -76,10 +76,10 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
               textDecoration: 'none'
             })}
           >
-            Observability
+            1. Detect
           </NavLink>
           <NavLink
-            to="/problems"
+            to="/incident-response"
             style={({ isActive }) => ({
               fontSize: '12.5px',
               fontWeight: isActive ? 700 : 500,
@@ -87,7 +87,18 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
               textDecoration: 'none'
             })}
           >
-            Problem Intelligence
+            2. Triage
+          </NavLink>
+          <NavLink
+            to="/incidents"
+            style={({ isActive }) => ({
+              fontSize: '12.5px',
+              fontWeight: isActive ? 700 : 500,
+              color: isActive ? '#0f172a' : '#64748b',
+              textDecoration: 'none'
+            })}
+          >
+            3. War Room
           </NavLink>
           <NavLink
             to="/reports"
@@ -98,7 +109,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
               textDecoration: 'none'
             })}
           >
-            Executive Digests
+            4. Postmortem
           </NavLink>
         </nav>
       </div>

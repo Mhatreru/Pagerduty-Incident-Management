@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../components/PageHeader";
+import { PathwayStepper } from "../components/PathwayStepper";
 import { IncidentDetailModal } from "../components/IncidentDetailModal";
 import { Incident } from "../types";
 import PsychologyIcon from "@mui/icons-material/Psychology";
@@ -8,6 +10,8 @@ import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 interface IncidentsPageProps {
   incidents: Incident[];
@@ -26,6 +30,7 @@ export const IncidentsPage: React.FC<IncidentsPageProps> = ({
   onResolveIncident,
   onExecuteRunbook
 }) => {
+  const navigate = useNavigate();
   const [selectedIncidentId, setSelectedIncidentId] = useState<number | null>(null);
   const selectedIncident = incidents.find((i) => i.id === selectedIncidentId) || null;
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -56,12 +61,81 @@ export const IncidentsPage: React.FC<IncidentsPageProps> = ({
       boxSizing: "border-box"
     }}>
       <PageHeader
-        title="Incident Intelligence & Major Incident War Room"
-        subtitle="Autonomous correlation, dynamic P1–P4 prioritization, Gemini AI root cause analysis, and bi-directional PagerDuty sync."
+        title="Step 3: War Room & Automated Remediation"
+        subtitle="Gemini AI root-cause diagnostics, automated runbooks execution, and bi-directional incident recovery."
         currentRole={currentRole}
         onRoleChange={onRoleChange}
-        badge="CORRELATION ENGINE"
+        badge="WAR ROOM ACTIVE"
       />
+
+      {/* Guided Pathway Stepper */}
+      <PathwayStepper activeIncidentCount={activeCount} />
+
+      {/* Guided Navigation Bar */}
+      <div style={{
+        background: "#ffffff",
+        border: "1px solid #e2e8f0",
+        borderRadius: "8px",
+        padding: "12px 18px",
+        marginBottom: "20px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "16px"
+      }}>
+        <button
+          onClick={() => navigate("/incident-response")}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            background: "#f1f5f9",
+            color: "#334155",
+            border: "1px solid #cbd5e1",
+            borderRadius: "6px",
+            padding: "8px 14px",
+            fontSize: "12.5px",
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          <ArrowBackIcon style={{ fontSize: "16px" }} />
+          <span>Back: Step 2 On-Call Triage</span>
+        </button>
+
+        <div style={{ fontSize: "13px", color: "#64748b", textAlign: "center" }}>
+          {activeCount > 0 ? (
+            <span>
+              Click <strong>"View Diagnostic"</strong> on any incident to launch the Gemini Root-Cause Copilot and trigger Runbook fixes.
+            </span>
+          ) : (
+            <span style={{ color: "#16a34a", fontWeight: 700 }}>
+              ✔ All incidents resolved. Proceed to Step 4 to review postmortems and executive ROI.
+            </span>
+          )}
+        </div>
+
+        <button
+          onClick={() => navigate("/reports")}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            background: "#0f172a",
+            color: "#ffffff",
+            border: "none",
+            borderRadius: "6px",
+            padding: "8px 16px",
+            fontSize: "12.5px",
+            fontWeight: 700,
+            cursor: "pointer",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+          }}
+        >
+          <span>Next: Step 4 Postmortem & ROI</span>
+          <ArrowForwardIcon style={{ fontSize: "16px" }} />
+        </button>
+      </div>
 
       {/* 4 Incident Intelligence Metric Cards */}
       <div style={{

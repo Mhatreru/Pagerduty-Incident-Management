@@ -1,12 +1,15 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Service, RawEvent } from "../types";
 import { PageHeader } from "../components/PageHeader";
+import { PathwayStepper } from "../components/PathwayStepper";
 import LanguageIcon from "@mui/icons-material/Language";
 import SpeedIcon from "@mui/icons-material/Speed";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import MemoryIcon from "@mui/icons-material/Memory";
 import HubIcon from "@mui/icons-material/Hub";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 interface DynatraceMonitoringPageProps {
   services: Service[];
@@ -21,6 +24,7 @@ export const DynatraceMonitoringPage: React.FC<DynatraceMonitoringPageProps> = (
   currentRole,
   onRoleChange
 }) => {
+  const navigate = useNavigate();
   const isOutage = services.some(s => s.status === "CRITICAL" || s.status === "DEGRADED");
   const syntheticLatency = isOutage ? 5240 : 357;
   const [filterSeverity, setFilterSeverity] = useState<string>("ALL");
@@ -52,12 +56,67 @@ export const DynatraceMonitoringPage: React.FC<DynatraceMonitoringPageProps> = (
       boxSizing: "border-box"
     }}>
       <PageHeader
-        title="Dynatrace APM & Synthetic Monitoring"
-        subtitle="Continuous end-user synthetic availability, OneAgent distributed tracing, and Davis AI anomaly detection."
+        title="Step 1: Detection & APM Telemetry"
+        subtitle="Davis AI real-time anomaly detection, OneAgent distributed tracing, and synthetic health monitoring."
         currentRole={currentRole}
         onRoleChange={onRoleChange}
-        badge="ONEAGENT LIVE"
+        badge="DYNATRACE LIVE"
       />
+
+      {/* Guided Pathway Stepper */}
+      <PathwayStepper />
+
+      {/* Guided Next Step Callout */}
+      <div style={{
+        background: isOutage ? "linear-gradient(90deg, #fff1f2 0%, #ffffff 100%)" : "linear-gradient(90deg, #f0fdf4 0%, #ffffff 100%)",
+        border: `1px solid ${isOutage ? "#fecdd3" : "#bbf7d0"}`,
+        borderRadius: "8px",
+        padding: "12px 18px",
+        marginBottom: "20px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "16px"
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <span style={{
+            fontSize: "12px",
+            fontWeight: 800,
+            color: isOutage ? "#be123c" : "#15803d",
+            background: isOutage ? "#ffe4e6" : "#dcfce7",
+            padding: "3px 8px",
+            borderRadius: "6px"
+          }}>
+            {isOutage ? "ANOMALY DETECTED" : "SYSTEM OPERATIONAL"}
+          </span>
+          <span style={{ fontSize: "13px", color: "#334155" }}>
+            {isOutage
+              ? "Davis AI has triggered alerts. Proceed to Step 2 to view on-call responder assignments & escalation dispatch."
+              : "All microservices healthy. You can inspect active on-call responders or simulate chaos to test the pipeline."}
+          </span>
+        </div>
+        <button
+          onClick={() => navigate("/incident-response")}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            background: "#0f172a",
+            color: "#ffffff",
+            border: "none",
+            borderRadius: "6px",
+            padding: "8px 16px",
+            fontSize: "12.5px",
+            fontWeight: 700,
+            cursor: "pointer",
+            whiteSpace: "nowrap",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+          }}
+        >
+          <span>Next: Step 2 On-Call Triage</span>
+          <ArrowForwardIcon style={{ fontSize: "16px" }} />
+        </button>
+      </div>
 
       {/* 4 Top APM Metric KPI Cards */}
       <div style={{
