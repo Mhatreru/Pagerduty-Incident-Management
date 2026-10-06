@@ -42,10 +42,36 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, current
           )}
         </div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#f59e0b' }} />
-        <span style={{ color: '#475569', fontSize: '12px', fontFamily: 'Inter, sans-serif' }}>Profile:</span>
-        <select
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+        {/* Capgemini Brand Pill */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          padding: '4px 10px',
+          background: '#f0f9ff',
+          borderRadius: '6px',
+          border: '1px solid #bae6fd'
+        }}>
+          <span style={{
+            color: '#0070ad',
+            fontWeight: 800,
+            fontSize: '12.5px',
+            letterSpacing: '-0.2px',
+            fontFamily: 'Inter, sans-serif'
+          }}>
+            Capgemini
+          </span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#0070ad">
+            <path d="M12 2C9.5 7 4 10.5 4 15a8 8 0 0 0 16 0C20 10.5 14.5 7 12 2zm0 15a3 3 0 1 1 0-6 3 3 0 0 1 0 6z" />
+            <path d="M10 20.5h4v1.5h-4z" />
+          </svg>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#f59e0b' }} />
+          <span style={{ color: '#475569', fontSize: '12px', fontFamily: 'Inter, sans-serif' }}>Profile:</span>
+          <select
           value={currentRole}
           onChange={e => onRoleChange(e.target.value)}
           style={{
@@ -56,6 +82,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, current
           {roles.map(r => <option key={r} value={r}>{r}</option>)}
         </select>
       </div>
+    </div>
     </div>
   );
 };

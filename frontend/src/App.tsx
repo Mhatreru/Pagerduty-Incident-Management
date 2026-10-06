@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
+import { TopNavbar } from "./components/TopNavbar";
 import { Sidebar } from "./components/Sidebar";
 import { OverviewPage } from "./pages/OverviewPage";
 import { IncidentsPage } from "./pages/IncidentsPage";
@@ -213,10 +214,15 @@ function App() {
 
   return (
     <HashRouter>
-      <div style={{ display: "flex", height: "100vh", overflow: "hidden", background: "#f8fafc" }}>
-        <Sidebar openIncidentCount={incidents.filter(i => i.status !== "RESOLVED").length} />
-        <div style={{ flex: 1, marginLeft: "210px", padding: "16px 24px", overflowY: "auto", height: "100vh", boxSizing: "border-box" }}>
-          <Routes>
+      <div style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden", background: "#f8fafc" }}>
+        <TopNavbar
+          onTriggerChaos={handleTriggerOutage}
+          demoActive={!demoStatus.offline}
+        />
+        <div style={{ display: "flex", flex: 1, marginTop: "52px", height: "calc(100vh - 52px)", overflow: "hidden" }}>
+          <Sidebar openIncidentCount={incidents.filter(i => i.status !== "RESOLVED").length} />
+          <div style={{ flex: 1, marginLeft: "210px", padding: "16px 24px", overflowY: "auto", height: "100%", boxSizing: "border-box" }}>
+            <Routes>
             {/* Core 4-Stage Operational Lifecycle */}
             <Route path="/" element={
               <OverviewPage
@@ -288,6 +294,7 @@ function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
+      </div>
       </div>
     </HashRouter>
   );
