@@ -8,7 +8,6 @@ import { DynatraceMonitoringPage } from "./pages/DynatraceMonitoringPage";
 import { PagerDutyResponsePage } from "./pages/PagerDutyResponsePage";
 import { ProblemManagementPage } from "./pages/ProblemManagementPage";
 import { ExecutiveReportsPage } from "./pages/ExecutiveReportsPage";
-import { FinancialRiskPage } from "./pages/FinancialRiskPage";
 import { Service, Incident, Analytics, RawEvent } from "./types";
 
 function App() {
@@ -283,8 +282,6 @@ function App() {
                 onRoleChange={handleRoleChange}
               />
             } />
-            <Route path="/financial-risk" element={<FinancialRiskPage />} />
-            <Route path="/decision-layer" element={<FinancialRiskPage />} />
 
             {/* Seamless redirects from legacy sub-pages to their respective parent stages */}
             <Route path="/war-room" element={<Navigate to="/incidents" replace />} />

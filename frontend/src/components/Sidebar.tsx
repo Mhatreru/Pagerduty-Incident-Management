@@ -14,7 +14,6 @@ interface SidebarProps {
 
 const navItems = [
   { path: '/', label: 'Overview', icon: DashboardIcon, exact: true },
-  { path: '/financial-risk', label: 'Financial Risk', icon: AssessmentIcon },
   { path: '/monitoring', label: 'Dynatrace APM', icon: SearchIcon },
   { path: '/incidents', label: 'Incident Management', icon: NotificationsActiveIcon },
   { path: '/problems', label: 'Problem Management', icon: HubIcon },
